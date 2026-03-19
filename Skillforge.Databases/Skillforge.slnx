@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Skillforge.Data/Skillforge.Data.csproj" />
+  <Project Path="Skillforge.Domain/Skillforge.Domain.csproj" />
+</Solution>
