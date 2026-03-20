@@ -9,5 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
   </ItemGroup>
-
+<ItemGroup>
+    <ProjectReference Include="../Skillforge.Databases/Skillforge.Data/Skillforge.Data.csproj" />
+    <ProjectReference Include="../Skillforge.Databases/Skillforge.Domain/Skillforge.Domain.csproj" />
+  </ItemGroup>
 </Project>
