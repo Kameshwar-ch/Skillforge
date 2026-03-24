@@ -25,7 +25,4 @@ public class ComplianceRecord
     [Column(TypeName ="DATETIME")]
     public DateTime Date { get; set; }
 
-    
-    public ICollection<Certification> Certifications {get;set;} = new List<Certification>();
-    
 }

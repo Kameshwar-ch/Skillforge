@@ -4,7 +4,6 @@ namespace Skillforge.Domain;
 
 public class Result
 {
-    [Key]
     [Column(TypeName = "INT")]
     public int ResultID { get; set; }
 

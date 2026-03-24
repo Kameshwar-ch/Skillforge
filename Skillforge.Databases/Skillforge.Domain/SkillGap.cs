@@ -18,7 +18,7 @@ public class SkillGap
     public int SkillGapID { get; set; }
 
     [Required]
-    [Column(TypeName = "INT)")]
+    [Column(TypeName = "INT")]
     public int EmployeeID { get; set; }
     [ForeignKey("EmployeeID")]
     public virtual User Employee { get; set; }
@@ -33,6 +33,6 @@ public class SkillGap
 
     [Required]
     [Column(TypeName ="DATETIME")]
-    public DateTime DateIdentified { get; set; } = DateTime.Now;
+    public DateTime DateIdentified { get; set; }
 
 }

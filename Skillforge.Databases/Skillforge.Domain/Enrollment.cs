@@ -17,7 +17,7 @@ public class Enrollment
   public int EmployeeID { get; set; }
   [ForeignKey("EmployeeID")]
   public virtual User EmployeeIdNavigation { get; set; }
-  public DateTime EnrollmentDate { get; set; } = DateTime.Now;
+  public DateTime EnrollmentDate { get; set; }
   public bool Status { get; set; } 
   public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 }

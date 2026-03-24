@@ -7,8 +7,7 @@ namespace Skillforge.Domain;
 public enum ReportScope
 {
     Course,
-    Employee,
-    Department
+    Employee
 }
 
 [Table("Report")]
@@ -23,5 +22,5 @@ public class Report
     [Required]
     public string Metrics { get; set; }
     [Required]
-    public DateTime GeneratedDate { get; set; } = DateTime.Now;
+    public DateTime GeneratedDate { get; set; }
 }

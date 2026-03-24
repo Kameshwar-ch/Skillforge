@@ -36,6 +36,7 @@ public class User
     [Column(TypeName = "VARCHAR(10)")]
     [Required, RegularExpression(@"^\d{10}$", ErrorMessage = "Phone must be exactly 10 digits.")]
     public string Phone { get; set; }
+    
 
     [Required]
     public bool Status { get; set; }
@@ -44,4 +45,7 @@ public class User
     public virtual ICollection<Result> Results { get; set; } = new List<Result>();
     public virtual ICollection<Certification> Certifications { get; set; } = new List<Certification>();
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+    public virtual ICollection<SkillGap> SkillGaps { get; set; } = new List<SkillGap>();
+    public virtual ICollection<Audit> Audits { get; set; } = new List<Audit>();
+    public virtual ICollection<ComplianceRecord> ComplianceRecords { get; set; } = new List<ComplianceRecord>();
 }

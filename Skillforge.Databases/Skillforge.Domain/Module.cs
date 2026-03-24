@@ -11,7 +11,7 @@ public class Module
     [Column(TypeName = "INT")]
     public int ModuleID { get; set; }
 
-    [Column(TypeName = "char(5)")]
+    [Column(TypeName = "INT")]
     public int CourseID { get; set; }
     [ForeignKey("CourseID")]
     public virtual Course CourseIDNavigation { get; set; }
