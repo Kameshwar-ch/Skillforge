@@ -11,18 +11,15 @@ public class UserRepository : IUserRepository
     {
         context=db;
     }
-    public User GetUserById(int userId)
+
+    public async Task<User> GetUserByIdAsync(int id)
     {
-        return context.Users.FirstOrDefault(u => u.UserID == userId);
+        return await context.Users.FindAsync(id);
     }
 
-    public void UpdateUser(User user)
+    public async void UpdateUser(User user)
     {
         context.Users.Update(user);
-    }
-
-    public void Savechanges()
-    {
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

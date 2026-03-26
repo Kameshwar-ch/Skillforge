@@ -10,9 +10,9 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public bool UpdateUser(int userId, UpdateUserRequestDto request)
+    public async Task<bool> UpdateUser(int userId, UpdateUserRequestDto request)
     {
-        var user = _userRepository.GetUserById(userId);
+        var user = await _userRepository.GetUserByIdAsync(userId);
 
         if (user == null)
             return false;
@@ -23,7 +23,6 @@ public class UserService : IUserService
         user.Status = request.Status;
 
         _userRepository.UpdateUser(user);
-        _userRepository.Savechanges();
 
         return true;
     }

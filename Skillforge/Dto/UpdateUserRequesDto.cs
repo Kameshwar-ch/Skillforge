@@ -17,6 +17,5 @@ public class UpdateUserRequestDto
     public bool Status { get; set; }
 
 
-
     
 }

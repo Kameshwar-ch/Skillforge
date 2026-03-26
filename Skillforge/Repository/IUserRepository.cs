@@ -3,7 +3,7 @@ using Skillforge.Domain;
 
 public interface IUserRepository
 {
-    User GetUserById(int userId);
+    Task<User> GetUserByIdAsync(int userId);
     void UpdateUser(User user);
-    void Savechanges();
+    // void Savechanges();
 }

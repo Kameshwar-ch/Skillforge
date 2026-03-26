@@ -14,7 +14,7 @@ public class UserController : ControllerBase
 
     [HttpPost("update/{id}")]
     [Authorize(Roles = "Admin")]
-    public IActionResult UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
     {
         if (!ModelState.IsValid)
         {
@@ -23,9 +23,9 @@ public class UserController : ControllerBase
 
         try
         {
-            var updated = _userService.UpdateUser(id, request);
+            bool updated = await _userService.UpdateUser(id, request);
 
-            if (!updated)
+            if (updated == true)
             {
                 return NotFound(new { message = "User not found" });
             }
