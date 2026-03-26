@@ -14,7 +14,6 @@
     <ProjectReference Include="../Skillforge.Databases/Skillforge.Domain/Skillforge.Domain.csproj" />
   </ItemGroup>
 <ItemGroup>
-  <Folder Include="Dto\" />
   <Folder Include="Repository\" />
   <Folder Include="Service\" />
   <Folder Include="Utility\" />
