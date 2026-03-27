@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Skillforge.Dto;
+using Skillforge.Service;
 
 namespace Skillforge.Controllers
 {
@@ -29,10 +31,9 @@ namespace Skillforge.Controllers
 
 				return StatusCode(201, new { message = "User registered successfully." });
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				// Catch any unexpected exceptions and return a generic 500
-				return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+				return StatusCode(500, new { message = ex.Message });
 			}
 		}
 

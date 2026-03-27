@@ -37,9 +37,9 @@ public class UserRepository : IUserRepository
 
 	//Returns true if any user already has the given email (used for duplicate check)
 
-	public async Task<User?> GetByEmailAsync(string email)
-	{
-		return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
-	}
+	//public async Task<User?> GetByEmailAsync(string email)
+	//{
+	//	return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+	//}
 }
 

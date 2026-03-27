@@ -1,7 +1,10 @@
 ﻿using System;
-using Skillforge.Service;
+using System.Diagnostics.Eventing.Reader;
+using Microsoft.AspNetCore.Identity;
+using Skillforge.Domain;
+using Skillforge.Dto;
 using Skillforge.Repository;
-public class UserService
+public class UserService : IUserService
 {
 	private readonly IUserRepository _userRepository;
 	public UserService(IUserRepository userRepository)
@@ -13,7 +16,7 @@ public class UserService
 	{
 		//block duplicate email registrations before doing any DB write
 
-		var existingUser = await _userRepository.GetUserByEmailAsync(userRequestDto.Email);
+		var existingUser = await _userRepository.GetByEmailAsync(userRequestDto.Email!);
 
 		if (existingUser != null && existingUser.Status)
 			return (false, "Email is already registered.");
