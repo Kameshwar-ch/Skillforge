@@ -18,11 +18,16 @@ public class User
 {
     [Key]
     [Column(TypeName = "INT")]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int UserID { get; set; }
 
     [Column(TypeName = "VARCHAR(20)")]
     [Required]
     public string Name { get; set; }
+
+    public string PasswordHash { get; set; }
+
+    public string PasswordSalt { get; set; }
 
     [Column(TypeName = "VARCHAR(20)")]
     [Required]
@@ -36,11 +41,11 @@ public class User
     [Column(TypeName = "VARCHAR(10)")]
     [Required, RegularExpression(@"^\d{10}$", ErrorMessage = "Phone must be exactly 10 digits.")]
     public string Phone { get; set; }
-    
+
 
     [Required]
     public bool Status { get; set; }
-    public virtual ICollection<AuditLog> AuditLogs{get; set;}=new List<AuditLog>();
+    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
     public virtual ICollection<Result> Results { get; set; } = new List<Result>();
     public virtual ICollection<Certification> Certifications { get; set; } = new List<Certification>();
