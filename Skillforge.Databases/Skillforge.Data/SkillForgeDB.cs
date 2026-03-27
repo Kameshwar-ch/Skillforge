@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Domain;
+using DotNetEnv;
 
 namespace SkillForgeLibrary.Models;
 
@@ -30,8 +31,26 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Assessment> Assessments { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Data Source=LTIN719061\\SQLEXPRESS; Initial Catalog=tmpDb;Integrated Security=True;TrustServerCertificate=True")
-            .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        if (!optionsBuilder.IsConfigured)
+        {
+            // Path.Combine handles the slashes for you. 
+            // Adding ".." twice moves the pointer two levels up the folder tree.
+            string envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+
+            DotNetEnv.Env.Load(envPath);
+
+            var conn = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
+            if (string.IsNullOrEmpty(conn))
+            {
+                // Helpful error if the file is found but the variable is missing
+                throw new Exception($"Connection string not found in .env at: {envPath}");
+            }
+
+            optionsBuilder.UseSqlServer(conn);
+        }
+
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,10 +76,10 @@ public class SkillForgeDB : DbContext
 
        });
 
-       modelBuilder.Entity<Assessment>()
-            .Property(a => a.Type)
-            .HasConversion<string>()          
-            .HasColumnType("VARCHAR(20)");
+        modelBuilder.Entity<Assessment>()
+             .Property(a => a.Type)
+             .HasConversion<string>()
+             .HasColumnType("VARCHAR(20)");
 
         modelBuilder.Entity<Enrollment>(entity =>
         {
