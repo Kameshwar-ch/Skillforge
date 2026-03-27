@@ -116,3 +116,5 @@ desktop.ini
 # EF Core safe ignores
 efcore.design.*
 **/Migrations/
+
+appsettings.json
