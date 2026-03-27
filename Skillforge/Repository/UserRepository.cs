@@ -28,5 +28,18 @@ public class UserRepository : IUserRepository
         user.Password = hashedPassword;
         return await context.SaveChangesAsync() > 0;
     }
+
+	public async Task UserRegisterAsync(User user)
+	{
+		await context.Users.AddAsync(user);
+		await context.SaveChangesAsync();
+	}
+
+	//Returns true if any user already has the given email (used for duplicate check)
+
+	public async Task<User?> GetByEmailAsync(string email)
+	{
+		return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+	}
 }
 
