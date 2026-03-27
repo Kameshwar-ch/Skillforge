@@ -14,7 +14,6 @@ public class ResetPasswordDto
     public string ConfirmPassword { get; set; } = string.Empty;
 }
 
-// This is Generic API Response Wrapper
 public class ApiResponseDto
 {
     public bool Success { get; set; }

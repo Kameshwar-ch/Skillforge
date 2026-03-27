@@ -6,16 +6,16 @@ namespace Skillforge.Repository;
 
 public class UserRepository : IUserRepository
 {
-    private readonly SkillForgeDB _context;
+    private readonly SkillForgeDB context;
 
     public UserRepository(SkillForgeDB context)
     {
-        _context = context;
+        this.context = context;
     }
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await _context.Users
+        return await context.Users
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
@@ -26,7 +26,7 @@ public class UserRepository : IUserRepository
         if (user == null) return false; // if user with email does not exists 
 
         user.Password = hashedPassword;
-        return await _context.SaveChangesAsync() > 0;
+        return await context.SaveChangesAsync() > 0;
     }
 }
 

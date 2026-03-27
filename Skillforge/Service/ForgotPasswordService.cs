@@ -1,5 +1,6 @@
 using Skillforge.Dto;
 using Skillforge.Repository;
+using Skillforge.Utility;
 
 namespace Skillforge.Service;
 
@@ -15,45 +16,45 @@ public class ForgotPasswordService : IForgotPasswordService
     // Check if the email exists in the database
     public async Task<ApiResponseDto> VerifyEmailAsync(ForgotPasswordRequestDto dto)
     {
-
+        // Did not enter the email to verify
         if (string.IsNullOrWhiteSpace(dto.Email))
-            return ApiResponseDto.FailResponse("Email is required.");
+            return ApiResponseDto.FailResponse(VerifyEmailUtility.EmailRequired);
 
-        // Check 
         var user = await UserRepository.GetByEmailAsync(dto.Email);
+        
+        // Entered email account does not exist in database
         if (user == null)
-            return ApiResponseDto.FailResponse("No account found with this email.");
+            return ApiResponseDto.FailResponse(VerifyEmailUtility.EmailNotFound);
 
-        return ApiResponseDto.SuccessResponse("Email verified. You can now reset your password.");
+        return ApiResponseDto.SuccessResponse(VerifyEmailUtility.EmailFound);
     }
 
     //  Update the password
     public async Task<ApiResponseDto> ResetPasswordAsync(ResetPasswordDto dto)
     {
-        // Checking Weather 
+        // Did not enter the email
         if (string.IsNullOrWhiteSpace(dto.Email))
-            return ApiResponseDto.FailResponse("Email is required.");
+            return ApiResponseDto.FailResponse(ResetPassword.EmailRequired);
 
+        // Did not enter new Password
         if (string.IsNullOrWhiteSpace(dto.NewPassword))
-            return ApiResponseDto.FailResponse("New password is required.");
+            return ApiResponseDto.FailResponse(ResetPassword.EnterPassword);
 
-        if (dto.NewPassword.Length < 6)
-            return ApiResponseDto.FailResponse("Password must be at least 6 characters.");
-
+        // new password and Re-enter password does not match 
         if (dto.NewPassword != dto.ConfirmPassword)
-            return ApiResponseDto.FailResponse("Passwords do not match.");
+            return ApiResponseDto.FailResponse(ResetPassword.NoMatch);
 
         // Here once more we will check whether the Email entered for reset exists or not 
         var user = await UserRepository.GetByEmailAsync(dto.Email);
         if (user == null)
-            return ApiResponseDto.FailResponse("No account found with this email.");
+            return ApiResponseDto.FailResponse(VerifyEmailUtility.EmailNotFound);
 
         // The New password Entered Will be hashed here
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
         var updated = await UserRepository.UpdatePasswordAsync(dto.Email, hashedPassword);
 
         return updated
-            ? ApiResponseDto.SuccessResponse("Password updated successfully.")
-            : ApiResponseDto.FailResponse("Something went wrong. Please try again.");
+            ? ApiResponseDto.SuccessResponse(ResetPassword.Updated)
+            : ApiResponseDto.FailResponse(ResetPassword.Failed);
     }
 }

@@ -20,7 +20,6 @@
   <Folder Include="Dto\" />
   <Folder Include="Repository\" />
   <Folder Include="Service\" />
-  <Folder Include="Utility\" />
   <Folder Include="Controller\" />
 </ItemGroup>
 </Project>

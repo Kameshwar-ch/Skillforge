@@ -35,6 +35,7 @@ packages/
 
 # ── Visual Studio files ──
 .vs/
+*.sql
 *.suo
 *.user
 *.userosscache

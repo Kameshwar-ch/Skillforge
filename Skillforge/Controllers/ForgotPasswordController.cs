@@ -16,7 +16,7 @@ public class ForgotPasswordController : ControllerBase
         ForgetPasswordService = forgotPasswordService;
     }
 
-    // POST User/forgotpassword/verify-email
+    // POST : User/forgotpassword/verifyemail
     [HttpPost("verifyemail")]
     public async Task<IActionResult> VerifyEmail([FromBody] ForgotPasswordRequestDto dto)
     {
@@ -27,7 +27,7 @@ public class ForgotPasswordController : ControllerBase
         return Ok(result);
     }
 
-    // POST User/forgotpassword/reset-password
+    // POST : User/forgotpassword/resetpassword
     [HttpPost("resetpassword")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
     {
