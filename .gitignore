@@ -112,3 +112,7 @@ desktop.ini
 .env.local
 .env.development
 .env.production
+
+# EF Core safe ignores
+efcore.design.*
+**/Migrations/
