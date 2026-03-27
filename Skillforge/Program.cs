@@ -1,10 +1,58 @@
+using Skillforge.Repository;
+using Skillforge.Service;
+using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using SkillForgeLibrary.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// this is for fetching the data from the env file.
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
+
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new Exception("Connection string is missing from .env file!");
+}
+
+builder.Services.AddDbContext<SkillForgeDB>(options =>
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddScoped<IUserService, EFUserService>();
+builder.Services.AddScoped<IAuditService, EFAuditRepository>();
+builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
+
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+if (secretKey == null)
+{
+    throw new Exception("Secret key is NUll");
+}
+
+
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateAudience = true,
+        ValidateIssuer = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "Skillforge",
+        ValidAudience = "SkillForgeUsers",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+});
+
+
+builder.Services.AddAuthorization();
+builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -14,6 +62,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
