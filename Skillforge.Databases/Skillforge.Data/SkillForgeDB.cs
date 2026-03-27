@@ -2,7 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Domain;
 
-namespace SkillForgeLibrary.Models;
+namespace Skillforge.Data;
 
 public class SkillForgeDB : DbContext
 {

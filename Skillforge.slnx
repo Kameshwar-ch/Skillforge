@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="Skillforge/Skillforge.csproj" />
   <Project Path="Skillforge.Databases/Skillforge.Domain/Skillforge.Domain.csproj" />
+  <Project Path="ConsoleApp1/ConsoleApp1.csproj" />
   <Project Path="Skillforge.Databases/Skillforge.Data/Skillforge.Data.csproj" />
 
 </Solution>

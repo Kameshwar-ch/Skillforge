@@ -81,6 +81,7 @@ publish/
 
 # ── appsettings and secrets ──
 appsettings.Development.json
+appsettings.json
 appsettings.Local.json
 secrets.json
 **/Properties/launchSettings.json
