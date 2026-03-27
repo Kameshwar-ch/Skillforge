@@ -2,7 +2,7 @@ using System;
 
 namespace Skillforge.Utility;
 
-public static class ResetPassword
+public static class ResetPasswordUtility
 {
     public const string EmailRequired = "Email is required.";
     public const string EnterPassword = "New password is required.";

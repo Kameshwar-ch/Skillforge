@@ -34,15 +34,15 @@ public class ForgotPasswordService : IForgotPasswordService
     {
         // Did not enter the email
         if (string.IsNullOrWhiteSpace(dto.Email))
-            return ApiResponseDto.FailResponse(ResetPassword.EmailRequired);
+            return ApiResponseDto.FailResponse(ResetPasswordUtility.EmailRequired);
 
         // Did not enter new Password
         if (string.IsNullOrWhiteSpace(dto.NewPassword))
-            return ApiResponseDto.FailResponse(ResetPassword.EnterPassword);
+            return ApiResponseDto.FailResponse(ResetPasswordUtility.EnterPassword);
 
         // new password and Re-enter password does not match 
         if (dto.NewPassword != dto.ConfirmPassword)
-            return ApiResponseDto.FailResponse(ResetPassword.NoMatch);
+            return ApiResponseDto.FailResponse(ResetPasswordUtility.NoMatch);
 
         // Here once more we will check whether the Email entered for reset exists or not 
         var user = await UserRepository.GetByEmailAsync(dto.Email);
@@ -54,7 +54,7 @@ public class ForgotPasswordService : IForgotPasswordService
         var updated = await UserRepository.UpdatePasswordAsync(dto.Email, hashedPassword);
 
         return updated
-            ? ApiResponseDto.SuccessResponse(ResetPassword.Updated)
-            : ApiResponseDto.FailResponse(ResetPassword.Failed);
+            ? ApiResponseDto.SuccessResponse(ResetPasswordUtility.Updated)
+            : ApiResponseDto.FailResponse(ResetPasswordUtility.Failed);
     }
 }
