@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Skillforge.Domain;
 using Skillforge.Service;
+using Skillforge.Utility;
 [ApiController]
-[Route("api/v1/user")]
+[Route("api/v1/[controller]")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -12,8 +14,15 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>
+    /// Allows an Admin to update an existing user's information.
+    /// Performs basic request validation and delegates business logic to the service layer.
+    /// </summary>
+    /// <param name="id">Receives the target userId from the route and update data from the request body.</param>
+    /// <param name="request">update user request containing the feilds that allowed to be updated </param>
+    /// <returns></returns>
     [HttpPost("update/{id}")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = nameof(UserRole.Admin))]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
     {
         if (!ModelState.IsValid)
@@ -23,22 +32,18 @@ public class UserController : ControllerBase
 
         try
         {
-            bool updated = await _userService.UpdateUser(id, request);
+            bool updated = await _userService.UpdateUser(id,request);
 
-            if (updated == true)
+            if (!updated)
             {
-                return NotFound(new { message = "User not found" });
+                return NotFound(UpdateMessages.NotFound);
             }
 
-            return Ok(new { message = "User updated successfully" });
+            return Ok(UpdateMessages.success);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new
-            {
-                message = "An error occurred while updating the user",
-                error = ex.Message
-            });
+            return StatusCode(500, UpdateMessages.Error);
         }
     }
 }
