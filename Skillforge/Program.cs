@@ -4,13 +4,11 @@ using Skillforge.Data;
 using Skillforge.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
-
+// Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddDbContext<SkillForgeDB>();
-
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 
@@ -21,7 +19,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+// Middlewares
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
