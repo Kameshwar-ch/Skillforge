@@ -31,13 +31,12 @@ public class User
     [Column(TypeName = "VARCHAR(50)")]
     [Required, RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$",
     ErrorMessage = "Invalid email address format.")]
-    public string Email { get; set; }
+    public string Email { get; set; }  
 
     [Column(TypeName = "VARCHAR(10)")]
     [Required, RegularExpression(@"^\d{10}$", ErrorMessage = "Phone must be exactly 10 digits.")]
     public string Phone { get; set; }
     
-
     [Required]
     public bool Status { get; set; }
     public virtual ICollection<AuditLog> AuditLogs{get; set;}=new List<AuditLog>();
