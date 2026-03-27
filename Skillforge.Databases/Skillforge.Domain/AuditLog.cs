@@ -8,10 +8,11 @@ namespace Skillforge.Domain;
 public class AuditLog
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int AuditID{get; set;}
 
     [Column(TypeName ="INT")]
-    public int UserID { get; set; }
+    public int ? UserID { get; set; }
 
     [ForeignKey("UserID")] 
     public virtual User UserIdNavigation { get; set; }
