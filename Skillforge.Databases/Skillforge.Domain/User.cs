@@ -38,6 +38,7 @@ public class User
     public string Phone { get; set; }
     
     [Required]
+    [Column(TypeName = "VARCHAR(255)")]
     public string Password { get; set; }
 
     [Required]
