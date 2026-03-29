@@ -1,5 +1,4 @@
 using System;
-
 namespace Skillforge.Utility;
 
 public class ErrorMessages

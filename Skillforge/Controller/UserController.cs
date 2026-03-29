@@ -9,17 +9,18 @@ namespace Skillforge.Controller
     [ApiController]
     public class UserController : ControllerBase
     {
-        IUserService userService;
-        public UserController(IUserService service)
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
         {
-            userService = service;
+            _userService = userService;
         }
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllUsers()
         {
             try
             {  
-                List<UserResponseDto> users = await userService.GetAllUsersAsync();
+                List<UserResponseDto> users = await _userService.GetAllUsersAsync();
                 return Ok(users);
             }
             catch(Exception ex)
