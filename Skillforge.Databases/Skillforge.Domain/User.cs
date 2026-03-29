@@ -23,6 +23,8 @@ public class User
     [Column(TypeName = "VARCHAR(20)")]
     [Required]
     public string Name { get; set; }
+
+    [Column(TypeName = "VARCHAR(20)")]
     [Required]
     public UserRole Role { get; set; }
 
@@ -31,16 +33,13 @@ public class User
     ErrorMessage = "Invalid email address format.")]
     public string Email { get; set; }
 
-    [Column(TypeName = "VARCHAR(256)")]
-    public string PasswordHash { get; set; }
-
-    [Column(TypeName = "VARCHAR(255)")]
-    public string PasswordSalt { get; set; }
-
     [Column(TypeName = "VARCHAR(10)")]
     [Required, RegularExpression(@"^\d{10}$", ErrorMessage = "Phone must be exactly 10 digits.")]
     public string Phone { get; set; }
     
+    [Required]
+    [Column(TypeName = "VARCHAR(255)")]
+    public string Password { get; set; }
 
     [Required]
     public bool Status { get; set; }
