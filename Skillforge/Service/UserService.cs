@@ -36,7 +36,6 @@ public class UserService : IUserService
         user.Status = request.Status;
 
         return await _userRepository.UpdateUser(user);
-
         
     }
 }
