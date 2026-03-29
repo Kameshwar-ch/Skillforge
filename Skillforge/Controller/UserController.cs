@@ -21,7 +21,7 @@ public class UserController : ControllerBase
     /// <param name="id">Receives the target userId from the route and update data from the request body.</param>
     /// <param name="request">update user request containing the feilds that allowed to be updated </param>
     /// <returns></returns>
-    [HttpPost("update/{id}")]
+    [HttpPut("update/{id}")]
     //[Authorize(Roles = nameof(UserRole.Admin))]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
     {
