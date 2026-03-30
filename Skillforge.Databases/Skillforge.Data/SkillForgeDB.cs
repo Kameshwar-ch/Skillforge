@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Skillforge.Domain;
 using DotNetEnv;
 
-namespace SkillForgeLibrary.Models;
+namespace Skillforge.Data;
 
 public class SkillForgeDB : DbContext
 {

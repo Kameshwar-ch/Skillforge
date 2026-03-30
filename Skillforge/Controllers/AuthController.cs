@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Repository;
 using Skillforge.Service;
-using SkillForgeLibrary.Models;
+using Skillforge.Data;
 
 namespace Skillforge.Controller
 {

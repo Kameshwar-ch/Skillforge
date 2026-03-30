@@ -4,8 +4,8 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using SkillForgeLibrary.Models;
 using Microsoft.EntityFrameworkCore;
+using Skillforge.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +22,10 @@ builder.Services.AddDbContext<SkillForgeDB>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+// builder.Services.AddDbContext<SkillForgeDB>();
+builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
@@ -55,8 +58,6 @@ builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
