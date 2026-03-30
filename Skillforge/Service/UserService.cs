@@ -1,16 +1,17 @@
+using System;
 using Skillforge.Domain;
 using Skillforge.Repository;
-using Skillforge.Service;
+namespace Skillforge.Service;
+
 public class UserService : IUserService
 {
-    private readonly IUserRepository _userRepository;
+     private readonly IUserRepository _userRepository;
 
     public UserService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
-    
-    /// <summary>
+   /// <summary>
     /// Updates an existing user's information based on the provided userId.
     /// Retrieves the user from the repository, applies the allowed updates,
     /// and persists the changes. Returns false if the user does not exist.
@@ -21,8 +22,6 @@ public class UserService : IUserService
     /// <returns>
     /// True if the user was successfully updated; false if the user was not found.
     /// </returns>
-
-
     public async Task<bool> UpdateUser(int id, UpdateUserRequestDto request)
     {
         var user = await _userRepository.GetUserByIdAsync(id);
@@ -38,4 +37,5 @@ public class UserService : IUserService
         return await _userRepository.UpdateUser(user);
         
     }
+
 }
