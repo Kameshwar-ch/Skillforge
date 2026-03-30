@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Domain;
+using Skillforge.Dto;
 using Skillforge.Service;
 using Skillforge.Utility;
 namespace Skillforge.Controller
@@ -33,7 +34,7 @@ namespace Skillforge.Controller
 
             try
             {
-                bool updated = await _userService.UpdateUser(id,request);
+                bool updated = await _userService.UpdateUser(id, request);
 
                 if (!updated)
                 {
@@ -48,5 +49,19 @@ namespace Skillforge.Controller
             }
     }
 
+        [HttpGet("GetAll")]
+        //[Authorize(Roles = nameof(UserRole.Admin))]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {  
+                List<UserResponseDto> users = await _userService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch(Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }

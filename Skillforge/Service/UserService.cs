@@ -1,5 +1,6 @@
 using System;
 using Skillforge.Domain;
+using Skillforge.Dto;
 using Skillforge.Repository;
 namespace Skillforge.Service;
 
@@ -37,5 +38,31 @@ public class UserService : IUserService
         return await _userRepository.UpdateUser(user);
         
     }
-
+    public async Task<List<UserResponseDto>> GetAllUsersAsync()
+    {
+       List<User> users;
+        try
+        {
+            users = await _userRepository.GetAllUsersAsync();   
+        }
+        catch(Exception)
+        {
+            throw new Exception(Utility.ErrorMessages.UsersNotFound);
+        } 
+       List<UserResponseDto> userResponseDtos = new List<UserResponseDto>();
+       foreach(User user in users)
+        {
+            UserResponseDto responseDto = new UserResponseDto
+            { 
+                UserID = user.UserID,
+                UserName = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
+                RoleName = user.Role,
+                Status = user.Status
+            };
+            userResponseDtos.Add(responseDto);
+        }
+        return userResponseDtos;
+    }
 }

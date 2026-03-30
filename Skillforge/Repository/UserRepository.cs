@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using Skillforge.Domain;
 using SkillForgeLibrary.Models;
 namespace Skillforge.Repository;
@@ -10,8 +11,7 @@ public class UserRepository : IUserRepository
     {
         context = _context;
     }
-
-    /// <summary>
+        /// <summary>
     /// Retrieves a user entity from the database using the specified userId.
     /// Returns null if the user does not exist.
     /// </summary>
@@ -41,5 +41,14 @@ public class UserRepository : IUserRepository
         context.Users.Update(user);
         await context.SaveChangesAsync();
         return true;
+    }
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        List<User> users = await context.Users.ToListAsync();
+        if(users.Count ==0)
+        {
+            throw new Exception(Utility.ErrorMessages.UsersNotFound);
+        }
+        return users;
     }
 }
