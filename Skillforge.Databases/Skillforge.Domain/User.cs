@@ -43,7 +43,7 @@ public class User
 
     [Required]
     public bool Status { get; set; }
-    public virtual ICollection<AuditLog> AuditLogs{get; set;}=new List<AuditLog>();
+    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
     public virtual ICollection<Result> Results { get; set; } = new List<Result>();
     public virtual ICollection<Certification> Certifications { get; set; } = new List<Certification>();
