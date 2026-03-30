@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Skillforge.Repository;
 using Skillforge.Service;
 using SkillForgeLibrary.Models;
 
@@ -76,7 +77,7 @@ namespace Skillforge.Controller
 			}
 			catch (System.Exception ex)
 			{
-				await _auditService.LogAsync(0, "Exception", ex.Message);
+				await _auditService.LogAsync(null, "Exception", ex.Message);
 				return StatusCode(500, new { message = "An error occurred during login." });
 			}
 		}

@@ -1,18 +1,16 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Domain;
+using Skillforge.Service;
 using SkillForgeLibrary.Models;
-
-namespace Skillforge.Service;
+namespace Skillforge.Repository;
 
 /// <summary>
 /// A concrete implementation of the IUserService that utilizes Entity Framework Core 
 /// to handle user identification and cryptographic credential verification.
 /// </summary>
-
-public class EFUserRepository : IUserRepository
+public class UserRepository : IUserRepository
 {
-
     /// <summary>
     /// Authenticates a user by performing a two-stage verification process:
     /// 1. Retrieves the user record from the database using the provided email.
@@ -25,25 +23,32 @@ public class EFUserRepository : IUserRepository
     /// otherwise, returns <c>null</c> if the user is not found or the password is incorrect.
     /// </returns>
     /// <exception cref="Exception">Thrown when a database error or unexpected system failure occurs during the process.</exception>
-
-    private readonly SkillForgeDB _context;
-
-    public EFUserRepository(SkillForgeDB context)
+    private readonly SkillForgeDB context;
+    public UserRepository(SkillForgeDB _context)
     {
-        _context = context;
+        context = _context;
+    }
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        List<User> users = await context.Users.ToListAsync();
+        if(users.Count ==0)
+        {
+            throw new Exception(Utility.ErrorMessages.UsersNotFound);
+        }
+        return users;
     }
 
     public async Task<User?> Authenticate(string email, string password)
     {
         try
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
                 return null;
             }
 
-            bool isValidUser = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+            bool isValidUser = BCrypt.Net.BCrypt.Verify(password, user.Password);
             if (!isValidUser)
             {
                 return null;

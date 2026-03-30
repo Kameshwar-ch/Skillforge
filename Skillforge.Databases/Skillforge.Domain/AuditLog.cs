@@ -16,8 +16,6 @@ public class AuditLog
 
     [ForeignKey("UserID")] 
     public virtual User UserIdNavigation { get; set; }
-
-    [Column(TypeName ="VARCHAR(50)")]
     public string Action{get; set;}
 
     [Column(TypeName ="VARCHAR(255)")]

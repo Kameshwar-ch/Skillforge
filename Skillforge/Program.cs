@@ -24,16 +24,16 @@ builder.Services.AddDbContext<SkillForgeDB>(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddScoped<IUserRepository, EFUserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
+builder.Services.AddScoped<IUserService,UserService>();
 
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
 {
     throw new Exception("Secret key is NUll");
 }
-
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 {
@@ -61,7 +61,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 
 app.UseSwagger();
 app.UseSwaggerUI();
