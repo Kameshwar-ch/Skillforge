@@ -16,6 +16,20 @@ namespace Skillforge.Controller
         {
             _userService = userService;
         }
+        [HttpGet("GetAll")]
+        //[Authorize(Roles = nameof(UserRole.Admin))]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {  
+                List<UserResponseDto> users = await _userService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch(Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
         /// <summary>
         /// Allows an Admin to update an existing user's information.
         /// Performs basic request validation and delegates business logic to the service layer.
@@ -43,24 +57,9 @@ namespace Skillforge.Controller
 
                 return Ok(UpdateMessages.success);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, UpdateMessages.Error);
-            }
-    }
-
-        [HttpGet("GetAll")]
-        //[Authorize(Roles = nameof(UserRole.Admin))]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            try
-            {  
-                List<UserResponseDto> users = await _userService.GetAllUsersAsync();
-                return Ok(users);
-            }
-            catch(Exception ex)
-            {
-                return NotFound(ex.Message);
             }
         }
     }
