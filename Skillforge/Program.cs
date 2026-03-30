@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SkillForgeDB>();
-builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
+//builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 builder.Services.AddScoped<IUserService,UserService>();
