@@ -6,4 +6,3 @@ public class ForgotPasswordRequestDto
     public string Email { get; set; } = string.Empty;
 }
 
-// This DTO is used to take the response from user and update the database
