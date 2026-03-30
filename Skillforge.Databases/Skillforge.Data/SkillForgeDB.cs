@@ -30,8 +30,7 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Assessment> Assessments { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Data Source=LTIN719061\\SQLEXPRESS; Initial Catalog=newMouseDb;Integrated Security=True;TrustServerCertificate=True")
-            .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
