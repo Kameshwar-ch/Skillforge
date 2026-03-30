@@ -19,15 +19,6 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
-    // Updates the database with 
-    public async Task<bool> UpdatePasswordAsync(string email, string hashedPassword)
-    {
-        var user = await GetByEmailAsync(email);
-        if (user == null) return false; // if user with email does not exists 
-
-        user.Password = hashedPassword;
-        return await context.SaveChangesAsync() > 0;
-    }
 
 	public async Task UserRegisterAsync(User user)
 	{
@@ -35,11 +26,5 @@ public class UserRepository : IUserRepository
 		await context.SaveChangesAsync();
 	}
 
-	//Returns true if any user already has the given email (used for duplicate check)
-
-	//public async Task<User?> GetByEmailAsync(string email)
-	//{
-	//	return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
-	//}
 }
 

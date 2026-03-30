@@ -5,7 +5,7 @@ using Skillforge.Service;
 
 namespace Skillforge.Controllers
 {
-    [Route("/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
