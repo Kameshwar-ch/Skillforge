@@ -6,7 +6,7 @@ using Skillforge.Service;
 namespace Skillforge.Controllers;
 
 [ApiController]
-[Route("User/[controller]")]
+[Route("api/v1/[controller]")]
 public class ForgotPasswordController : ControllerBase
 {
     private readonly IForgotPasswordService ForgetPasswordService;
