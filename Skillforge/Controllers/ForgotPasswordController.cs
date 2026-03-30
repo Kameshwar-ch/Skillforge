@@ -9,18 +9,18 @@ namespace Skillforge.Controllers;
 [Route("User/[controller]")]
 public class ForgotPasswordController : ControllerBase
 {
-    private readonly IForgotPasswordService ForgetPasswordService;
+    private readonly IForgotPasswordService _forgetPasswordService;
 
     public ForgotPasswordController(IForgotPasswordService forgotPasswordService)
     {
-        ForgetPasswordService = forgotPasswordService;
+        _forgetPasswordService = forgotPasswordService;
     }
 
     // POST : User/forgotpassword/verifyemail
     [HttpPost("verifyemail")]
     public async Task<IActionResult> VerifyEmail([FromBody] ForgotPasswordRequestDto dto)
     {
-        var result = await ForgetPasswordService.VerifyEmailAsync(dto);
+        var result = await _forgetPasswordService.VerifyEmailAsync(dto);
         if (!result.Success)
             return BadRequest(result);
 
@@ -31,7 +31,7 @@ public class ForgotPasswordController : ControllerBase
     [HttpPost("resetpassword")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
     {
-        var result = await ForgetPasswordService.ResetPasswordAsync(dto);
+        var result = await _forgetPasswordService.ResetPasswordAsync(dto);
         if (!result.Success)
             return BadRequest(result);
 
