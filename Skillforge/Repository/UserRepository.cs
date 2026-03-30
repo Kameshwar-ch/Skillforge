@@ -37,15 +37,13 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
-    // Updates the database with 
-    public async Task<bool> UpdatePasswordAsync(string email, string hashedPassword)
-    {
-        var user = await GetByEmailAsync(email);
-        if (user == null) return false; // if user with email does not exists 
 
-        user.Password = hashedPassword;
-        return await context.SaveChangesAsync() > 0;
-    }
+	public async Task UserRegisterAsync(User user)
+	{
+		await context.Users.AddAsync(user);
+		await context.SaveChangesAsync();
+	}
+
 
         public async Task<List<User>> GetAllUsersAsync()
     {
@@ -79,6 +77,11 @@ public class UserRepository : IUserRepository
         {
             throw new Exception("No such User Exists. " + ex);
         }
+    }
+
+    public Task<bool> UpdatePasswordAsync(string email, string hashedPassword)
+    {
+        throw new NotImplementedException();
     }
 }
 

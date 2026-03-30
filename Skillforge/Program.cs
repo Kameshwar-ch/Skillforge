@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Data;
+using FluentValidation.AspNetCore;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // builder.Services.AddDbContext<SkillForgeDB>();
 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();

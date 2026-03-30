@@ -16,7 +16,6 @@ namespace Skillforge.Controller
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-
 		/// <summary>
 		/// Authenticates a user based on provided credentials.
 		/// On success, it generates access and refresh tokens and logs a "Success" audit entry.

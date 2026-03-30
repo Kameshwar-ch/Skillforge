@@ -10,5 +10,6 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
     Task<List<User>> GetAllUsersAsync();
     Task<bool> UpdatePasswordAsync(string email, string hashedPassword);
+    public Task UserRegisterAsync(User user);
 }
 
