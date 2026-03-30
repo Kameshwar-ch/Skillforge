@@ -1,11 +1,20 @@
-using Microsoft.EntityFrameworkCore;
 using Skillforge.Repository;
 using Skillforge.Service;
-using SkillForgeLibrary.Models;
+using Skillforge.Data;
+using Skillforge.Domain;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
+// Services
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<SkillForgeDB>();
+//builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 builder.Services.AddScoped<IUserService,UserService>();
@@ -15,15 +24,16 @@ builder.Services.AddDbContext<SkillForgeDB>(options =>
         b => b.MigrationsAssembly("Skillforge")));
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.MapOpenApi();
 
 
 }
 
+// Middlewares
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
