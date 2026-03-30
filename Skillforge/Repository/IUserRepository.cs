@@ -3,7 +3,7 @@ using Skillforge.Domain;
 
 namespace Skillforge.Service;
 
-public interface IUserService
+public interface IUserRepository
 {
     Task <User ?> Authenticate(string email, string password);
 }

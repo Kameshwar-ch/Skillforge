@@ -24,7 +24,7 @@ builder.Services.AddDbContext<SkillForgeDB>(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddScoped<IUserService, EFUserService>();
+builder.Services.AddScoped<IUserRepository, EFUserRepository>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 

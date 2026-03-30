@@ -8,7 +8,6 @@ using Microsoft.VisualBasic;
 using Skillforge.Domain;
 
 namespace Skillforge.Service;
-
 /// <summary>
 /// Service responsible for generating and managing JSON Web Tokens (JWT) and Refresh Tokens.
 /// It handles identity encoding, security signing, and cryptographic token creation.

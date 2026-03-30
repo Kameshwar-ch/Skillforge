@@ -10,7 +10,7 @@ namespace Skillforge.Service;
 /// to handle user identification and cryptographic credential verification.
 /// </summary>
 
-public class EFUserService : IUserService
+public class EFUserRepository : IUserRepository
 {
 
     /// <summary>
@@ -28,7 +28,7 @@ public class EFUserService : IUserService
 
     private readonly SkillForgeDB _context;
 
-    public EFUserService(SkillForgeDB context)
+    public EFUserRepository(SkillForgeDB context)
     {
         _context = context;
     }

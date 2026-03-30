@@ -6,8 +6,6 @@ using SkillForgeLibrary.Models;
 
 namespace Skillforge.Controller
 {
-
-
 	/// <summary>
 	/// AuthController manages user identity and security sessions.
 	/// It provides endpoints for credential verification, JWT token issuance, and security auditing.
@@ -29,14 +27,15 @@ namespace Skillforge.Controller
 		/// or an error message with appropriate HTTP status code on failure.
 		/// </returns>
 
-		private readonly IUserService _userService;
+		// private readonly IUserService _userService;
+		private readonly IUserRepository _userRepository;
 		private readonly IAuditService _auditService;
 
 		private readonly IJWTProviderService _jwtService;
 
-		public AuthController(IUserService userService, IAuditService auditService, IJWTProviderService jwtService)
+		public AuthController(IUserRepository userRepository, IAuditService auditService, IJWTProviderService jwtService)
 		{
-			_userService = userService;
+			_userRepository = userRepository;
 			_auditService = auditService;
 			_jwtService = jwtService;
 		}
@@ -48,7 +47,7 @@ namespace Skillforge.Controller
 			{
 				// authenticate function / method returns the user if the credentials are match else it will return null
 
-				var user = await _userService.Authenticate(request.Email, request.Password);
+				var user = await _userRepository.Authenticate(request.Email, request.Password);
 				if (user == null)
 				{
 
