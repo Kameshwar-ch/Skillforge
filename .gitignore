@@ -124,3 +124,4 @@ efcore.design.*
 **/Migrations/
 
 appsettings.json
+appsettings.*.json
