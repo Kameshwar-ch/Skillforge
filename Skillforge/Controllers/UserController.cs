@@ -16,7 +16,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 [HttpDelete("{userId}")]
-//[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin")]
 public async Task<IActionResult> DeleteUser(int userId)
 {
     try

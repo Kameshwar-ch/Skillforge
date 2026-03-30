@@ -1,7 +1,6 @@
 using Skillforge.Domain;
 using Skillforge.Repository;
 using Skillforge.Service;
-//using System.Threading.Tasks;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
