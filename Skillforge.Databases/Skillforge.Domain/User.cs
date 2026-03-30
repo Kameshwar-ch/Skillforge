@@ -36,9 +36,9 @@ public class User
     [Column(TypeName = "VARCHAR(10)")]
     [Required, RegularExpression(@"^\d{10}$", ErrorMessage = "Phone must be exactly 10 digits.")]
     public string Phone { get; set; }
-
-    [Column(TypeName = "VARCHAR(255)")]
+    
     [Required]
+    [Column(TypeName = "VARCHAR(255)")]
     public string Password { get; set; }
 
     [Required]

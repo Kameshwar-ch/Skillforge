@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Data;
 using Skillforge.Domain;
-
+// using SkillForgeLibrary.Models;
 namespace Skillforge.Repository;
 
 public class UserRepository : IUserRepository
@@ -27,6 +27,16 @@ public class UserRepository : IUserRepository
 
         user.Password = hashedPassword;
         return await context.SaveChangesAsync() > 0;
+    }
+
+        public async Task<List<User>> GetAllUsersAsync()
+    {
+        List<User> users = await context.Users.ToListAsync();
+        if(users.Count ==0)
+        {
+            throw new Exception(Utility.ErrorMessages.UsersNotFound);
+        }
+        return users;
     }
 }
 

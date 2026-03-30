@@ -8,6 +8,7 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email); 
 
     // This will update the password in database
+    Task<List<User>> GetAllUsersAsync();
+
     Task<bool> UpdatePasswordAsync(string email, string hashedPassword);
 }
-

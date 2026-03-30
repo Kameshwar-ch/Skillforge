@@ -28,10 +28,15 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Certification> Certifications { get; set; }
     public virtual DbSet<ComplianceRecord> ComplianceRecords { get; set; }
     public virtual DbSet<Assessment> Assessments { get; set; }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
+    // protected override void OnConfiguring(DbContextOptionsBuilder options): base(options)
+    // {
         
-    }
+    // }
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+    //     optionsBuilder.UseSqlServer("Data Source=LTIN718736\\SQLEXPRESS; Initial Catalog=tmpDb;Integrated Security=True;TrustServerCertificate=True")
+    //         .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    // }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
