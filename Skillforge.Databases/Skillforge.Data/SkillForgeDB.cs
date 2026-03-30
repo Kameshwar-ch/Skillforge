@@ -28,6 +28,10 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Certification> Certifications { get; set; }
     public virtual DbSet<ComplianceRecord> ComplianceRecords { get; set; }
     public virtual DbSet<Assessment> Assessments { get; set; }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        
+    }
     // protected override void OnConfiguring(DbContextOptionsBuilder options): base(options)
     // {
         
