@@ -6,7 +6,7 @@ using Skillforge.Domain;
 using Skillforge.Service;
 namespace Skillforge.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
