@@ -16,13 +16,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
 <ItemGroup>
-    <ProjectReference Include="../Skillforge.Databases/Skillforge.Data/Skillforge.Data.csproj" />
     <ProjectReference Include="../Skillforge.Databases/Skillforge.Domain/Skillforge.Domain.csproj" />
+    <ProjectReference Include="..\Skillforge.Databases\Skillforge.Data\Skillforge.Data.csproj" />
   </ItemGroup>
 <ItemGroup>
   <Folder Include="Repository\" />
   <Folder Include="Service\" />
-  <Folder Include="Utility\" />
   <Folder Include="Controller\" />
 </ItemGroup>
 </Project>
