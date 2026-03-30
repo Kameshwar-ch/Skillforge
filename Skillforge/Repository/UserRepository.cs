@@ -32,6 +32,7 @@ public async Task<bool> DeleteUser(int userId)
     catch (Exception ex)
     {
         Console.WriteLine("ERROR: " + ex.Message);
+        throw;
     } 
     }
     public async Task<List<User>> GetAllUsersAsync()

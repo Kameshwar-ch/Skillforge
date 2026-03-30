@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Skillforge.Domain;
 using Skillforge.Dto;
 using Skillforge.Service;
+using Skillforge.Utility;
 namespace Skillforge.Controller
 {
     [Route("api/[controller]")]
@@ -31,7 +32,7 @@ namespace Skillforge.Controller
         }
 
         [HttpDelete("{userId}")]
-//[Authorize(Roles = "Admin")]
+       //[Authorize(Roles = "Admin")]
 public async Task<IActionResult> DeleteUser(int userId)
 {
     try
@@ -52,9 +53,8 @@ public async Task<IActionResult> DeleteUser(int userId)
     }
     catch (Exception ex)
     {
-        return StatusCode(500,DeleteUserMessages.Delete.Error);
+        return StatusCode(500,ex.Message);
     }
 }
-
     }
 }

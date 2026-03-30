@@ -28,19 +28,11 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Certification> Certifications { get; set; }
     public virtual DbSet<ComplianceRecord> ComplianceRecords { get; set; }
     public virtual DbSet<Assessment> Assessments { get; set; }
-<<<<<<< HEAD
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Data Source=.\\SQLEXPRESS; Initial Catalog=tmpDb;Integrated Security=True;TrustServerCertificate=True")
-            .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
-    }
-=======
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+   //  protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // {
-    //     optionsBuilder.UseSqlServer("Data Source=LTIN718736\\SQLEXPRESS; Initial Catalog=tmpDb;Integrated Security=True;TrustServerCertificate=True")
-    //         .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
-    // }
->>>>>>> ce7febd16c783b760f1b3098179f2a10e0120a1c
+      //   optionsBuilder.UseSqlServer("Data Source=DESKTOP-ROGL5IG\\SQLEXPRESS; Initial Catalog=tmpDb;Integrated Security=True;TrustServerCertificate=True")
+        //     .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    //}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
