@@ -1,16 +1,17 @@
 using Skillforge.Domain;
 
+
 namespace Skillforge.Repository;
+
 
 public interface IUserRepository
 {
-	public Task UserRegisterAsync(User user);
-	// Nullable Because The Email entered might not exists in the database
-	Task<User?> GetByEmailAsync(string email); 
-    // This will update the password in database
+    Task<User?> Authenticate(string email, string password);
+    Task<User?> GetByEmailAsync(string email);
     Task<List<User>> GetAllUsersAsync();
-
     Task<bool> UpdatePasswordAsync(string email, string hashedPassword);
+    public Task UserRegisterAsync(User user);
     Task<User> GetUserByIdAsync(int id);
     Task<bool> UpdateUser(User user);
 }
+

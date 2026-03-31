@@ -8,7 +8,7 @@ namespace Skillforge.Service;
 
 public class UserService : IUserService
 {
-     private readonly IUserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
 
     public UserService(IUserRepository userRepository)
     {
@@ -42,20 +42,20 @@ public class UserService : IUserService
     }
     public async Task<List<UserResponseDto>> GetAllUsersAsync()
     {
-       List<User> users;
+        List<User> users;
         try
         {
-            users = await _userRepository.GetAllUsersAsync();   
+            users = await _userRepository.GetAllUsersAsync();
         }
-        catch(Exception)
+        catch (Exception ex)
         {
             throw new Exception(Utility.ErrorMessages.UsersNotFound);
-        } 
-       List<UserResponseDto> userResponseDtos = new List<UserResponseDto>();
-       foreach(User user in users)
+        }
+        List<UserResponseDto> userResponseDtos = new List<UserResponseDto>();
+        foreach (User user in users)
         {
             UserResponseDto responseDto = new UserResponseDto
-            { 
+            {
                 UserID = user.UserID,
                 UserName = user.Name,
                 Email = user.Email,

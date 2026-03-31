@@ -58,6 +58,9 @@ launchSettings.json
 # ── Visual Studio Code ──
 .vscode/
 
+# Migrations
+Skillforge.Databases/Skillforge.Data/Migrations/
+
 # ── JetBrains Rider ──
 .idea/
 *.sln.iml
