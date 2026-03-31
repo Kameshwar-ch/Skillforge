@@ -85,6 +85,31 @@ namespace Skillforge.Controller
 				return StatusCode(500, new { message = ex.Message });
 			}
 		}
+         [HttpDelete("{userId}")]
+       //[Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteUser(int userId)
+   {
+    try
+    {
+        if (userId <= 0)
+        {
+            return BadRequest("Invalid User ID");
+        }
+
+        var deleted = await _userService.DeleteUser(userId);
+
+        if (!deleted)
+        {
+            return NotFound(DeleteUserMessages.Delete.NotFound);
+        }
+
+        return Ok(DeleteUserMessages.Delete.Success);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500,ex.Message);
+    }
+}
 
     }
 }
