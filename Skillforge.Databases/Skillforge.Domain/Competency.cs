@@ -25,6 +25,6 @@ public class Competency
     [Required]
     [Column(TypeName = "VARCHAR(15)")]
     public CompetencyLevel Level { get; set; }
-    public ICollection<SkillGap>? SkillGaps { get; set; }
+    public ICollection<SkillGap> SkillGaps { get; set; }
 }
 

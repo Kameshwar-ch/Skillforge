@@ -3,6 +3,7 @@
 # ══════════════════════════════════════════════
 
 # ── Build outputs ──
+Migrations/
 bin/
 obj/
 Debug/
@@ -34,6 +35,7 @@ packages/
 
 # ── Visual Studio files ──
 .vs/
+*.sql
 *.suo
 *.user
 *.userosscache
@@ -55,6 +57,9 @@ launchSettings.json
 
 # ── Visual Studio Code ──
 .vscode/
+
+# Migrations
+Skillforge.Databases/Skillforge.Data/Migrations/
 
 # ── JetBrains Rider ──
 .idea/
@@ -80,6 +85,7 @@ publish/
 
 # ── appsettings and secrets ──
 appsettings.Development.json
+appsettings.json
 appsettings.Local.json
 secrets.json
 **/Properties/launchSettings.json
