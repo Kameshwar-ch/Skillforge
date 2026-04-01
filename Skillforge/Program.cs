@@ -12,7 +12,7 @@ using FluentValidation;
 var builder = WebApplication.CreateBuilder(args);
 
 // this is for fetching the data from the env file.
-DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(),".." ,".env"));
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 if (string.IsNullOrEmpty(connectionString))
