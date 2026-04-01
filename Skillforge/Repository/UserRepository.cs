@@ -55,6 +55,30 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public async Task<bool> DeleteUser(int userId)
+    {
+        try
+        {
+            var user = await context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                Console.WriteLine("USER NOT FOUND");
+                return false;
+            }
+
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
+
+            Console.WriteLine("DELETE SUCCESS");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("ERROR: " + ex.Message);
+            throw;
+        }
+    }
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await context.Users
@@ -71,17 +95,17 @@ public class UserRepository : IUserRepository
         return await context.SaveChangesAsync() > 0;
     }
 
-	public async Task UserRegisterAsync(User user)
-	{
-		await context.Users.AddAsync(user);
-		await context.SaveChangesAsync();
-	}
+    public async Task UserRegisterAsync(User user)
+    {
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+    }
 
 
-        public async Task<List<User>> GetAllUsersAsync()
+    public async Task<List<User>> GetAllUsersAsync()
     {
         List<User> users = await context.Users.ToListAsync();
-        if(users.Count ==0)
+        if (users.Count == 0)
         {
             throw new Exception(Utility.ErrorMessages.UsersNotFound);
         }

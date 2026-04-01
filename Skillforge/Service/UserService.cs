@@ -40,6 +40,10 @@ public class UserService : IUserService
         return await _userRepository.UpdateUser(user);
         
     }
+   public async Task<bool> DeleteUser(int userId)
+{
+    return await _userRepository.DeleteUser(userId);
+}
     public async Task<List<UserResponseDto>> GetAllUsersAsync()
     {
         List<User> users;
