@@ -25,7 +25,7 @@ public class User
     [Required]
     public string Name { get; set; }
 
-    [Column(TypeName = "VARCHAR(20)")]
+    //[Column(TypeName = "VARCHAR(20)")]
     [Required]
     public UserRole Role { get; set; }
 
