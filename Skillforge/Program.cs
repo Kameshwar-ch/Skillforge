@@ -1,18 +1,18 @@
 using Skillforge.Repository;
 using Skillforge.Service;
-using DotNetEnv;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Data;
-using FluentValidation.AspNetCore;
 using FluentValidation;
+using FluentValidation.AspNetCore;
+using System.Text.Json.Serialization;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // this is for fetching the data from the env file.
-DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(),".." ,".env"));
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 if (string.IsNullOrEmpty(connectionString))
@@ -25,7 +25,6 @@ builder.Services.AddDbContext<SkillForgeDB>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
@@ -40,6 +39,23 @@ if (secretKey == null)
 {
     throw new Exception("Secret key is NUll");
 }
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authentication using Bearer scheme"
+    });
+    options.AddSecurityRequirement(doc => new OpenApiSecurityRequirement
+    {
+        { new OpenApiSecuritySchemeReference("Bearer", doc), new List<string>() }
+    });
+});
+ 
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 {
@@ -54,6 +70,15 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
+
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter()
+        );
+    });
 
 
 builder.Services.AddAuthorization();

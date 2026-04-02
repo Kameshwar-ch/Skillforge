@@ -46,11 +46,9 @@ namespace Skillforge.Controller
 			try
 			{
 				// authenticate function / method returns the user if the credentials are match else it will return null
-
 				var user = await _userRepository.Authenticate(request.Email, request.Password);
 				if (user == null)
 				{
-
 					// logAsync -> this will log the audits 
 					await _auditService.LogAsync(null, "Login Failed", $"Email: {request.Email}");
 					return Unauthorized(
