@@ -4,7 +4,6 @@ using Skillforge.Dto;
 using Skillforge.Service;
 using Skillforge.Utility;
 using Skillforge.Domain;
-using Skillforge.Service;
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
