@@ -5,6 +5,8 @@ using Skillforge.Service;
 using Skillforge.Utility;
 using Skillforge.Domain;
 using Skillforge.Service;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
@@ -18,7 +20,7 @@ namespace Skillforge.Controller
             _userService = userService;
         }
         [HttpGet("GetAll")]
-        //[Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -39,7 +41,7 @@ namespace Skillforge.Controller
         /// <param name="request">update user request containing the feilds that allowed to be updated </param>
         /// <returns></returns>
         [HttpPut("update/{id}")]
-        //[Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -85,31 +87,31 @@ namespace Skillforge.Controller
 				return StatusCode(500, new { message = ex.Message });
 			}
 		}
-         [HttpDelete("{userId}")]
-       //[Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteUser(int userId)
-   {
-    try
-    {
-        if (userId <= 0)
-        {
-            return BadRequest("Invalid User ID");
-        }
+        [HttpDelete("{userId}")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
+    	public async Task<IActionResult> DeleteUser(int userId)
+   		{
+    		try
+    		{
+        		if (userId <= 0)
+        		{
+            		return BadRequest("Invalid User ID");
+        		}
 
-        var deleted = await _userService.DeleteUser(userId);
+        		var deleted = await _userService.DeleteUser(userId);
 
-        if (!deleted)
-        {
-            return NotFound(DeleteUserMessages.Delete.NotFound);
-        }
+        		if (!deleted)
+        		{
+            		return NotFound(DeleteUserMessages.Delete.NotFound);
+        		}
 
-        return Ok(DeleteUserMessages.Delete.Success);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500,ex.Message);
-    }
-}
+        		return Ok(DeleteUserMessages.Delete.Success);
+    		}
+    		catch (Exception ex)
+    		{
+        		return StatusCode(500,ex.Message);
+    		}
+		}
 
     }
 }
