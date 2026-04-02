@@ -6,7 +6,7 @@ Follow these steps to set up the environment and get the application running loc
 Create a .env file in the root directory of the project and define the following variables:
 
 Code snippet
-    JWT_SECRET_KEY=your_super_secret_key_here
+    JWT_SECRET_KEY=your_super_secret_key_here (should contains 50+ characters)
     CONNECTION_STRING=your connection String
 
 2. Database Setup
