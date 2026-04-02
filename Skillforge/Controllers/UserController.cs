@@ -4,7 +4,8 @@ using Skillforge.Dto;
 using Skillforge.Service;
 using Skillforge.Utility;
 using Skillforge.Domain;
-using Skillforge.Service;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
@@ -18,7 +19,7 @@ namespace Skillforge.Controller
             _userService = userService;
         }
         [HttpGet("GetAll")]
-        //[Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -39,18 +40,12 @@ namespace Skillforge.Controller
         /// <param name="request">update user request containing the feilds that allowed to be updated </param>
         /// <returns></returns>
         [HttpPut("update/{id}")]
-        //[Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(
-                    new
-                    {
-                        modelState = ModelState,
-                        message = "Kuch to Invalid hai"
-                    }
-                );
+                return BadRequest(ModelState);
             }
 
             try
@@ -92,7 +87,7 @@ namespace Skillforge.Controller
             }
         }
         [HttpDelete("{userId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> DeleteUser(int userId)
         {
             try

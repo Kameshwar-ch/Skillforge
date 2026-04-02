@@ -22,14 +22,18 @@ Bash
     dotnet ef migrations add InitialCreate
     dotnet ef database update
 
-3. Running the Application
+3. Add all the Neccessary Packages using the command in bash
+    dotnet restore 
+
+4. Running the Application
 Once the database is configured, return to the main project folder and start the server.
 
 Return to the root:
 
 Bash
 cd ../..
-Launch the project:
 
+
+Launch the project:
 Bash
     dotnet run 
