@@ -45,23 +45,21 @@ namespace Skillforge.Controller
 		{
 			try
 			{
-				if(string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.Password))
+				if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.Password))
 				{
-					return BadRequest(new { message = "Email and Password are required.", StatusCode = 400});
+					return BadRequest(new { message = "Email and Password are required.", StatusCode = 400 });
 				}
 
-				else if(string.IsNullOrEmpty(request.Email))
+				else if (string.IsNullOrEmpty(request.Email))
 				{
-					return BadRequest(new { message = "Email is required.", StatusCode = 400});
+					return BadRequest(new { message = "Email is required.", StatusCode = 400 });
 				}
 
-				else if(string.IsNullOrEmpty(request.Password))
+				else if (string.IsNullOrEmpty(request.Password))
 				{
-					return BadRequest(new { message = "Password is required.", StatusCode = 400});
+					return BadRequest(new { message = "Password is required.", StatusCode = 400 });
 				}
-
 				
-
 				// authenticate function / method returns the user if the credentials are match else it will return null
 				var user = await _userRepository.Authenticate(request.Email, request.Password);
 				if (user == null)
