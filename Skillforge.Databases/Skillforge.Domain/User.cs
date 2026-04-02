@@ -18,7 +18,6 @@ public class User
 {
     [Key]
     [Column(TypeName = "INT")]
-    //[DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int UserID { get; set; }
 
     [Column(TypeName = "VARCHAR(20)")]
