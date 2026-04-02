@@ -4,7 +4,6 @@ using Skillforge.Dto;
 using Skillforge.Service;
 using Skillforge.Utility;
 using Skillforge.Domain;
-using Skillforge.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace Skillforge.Controller
@@ -24,11 +23,11 @@ namespace Skillforge.Controller
         public async Task<IActionResult> GetAllUsers()
         {
             try
-            {  
+            {
                 List<UserResponseDto> users = await _userService.GetAllUsersAsync();
                 return Ok(users);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return NotFound(ex.Message);
             }
@@ -66,52 +65,51 @@ namespace Skillforge.Controller
             }
         }
 
-		[HttpPost("Register")]
-		[ProducesResponseType(StatusCodes.Status201Created)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public async Task<IActionResult> UserRegister(UserRequestDto userRequestDto)
-		{
-			try
-			{
-				var (success, errorMessage) = await _userService.UserRegisterAsync(userRequestDto);
+        [HttpPost("Register")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UserRegister(UserRequestDto userRequestDto)
+        {
+            try
+            {
+                var (success, errorMessage) = await _userService.UserRegisterAsync(userRequestDto);
 
-				// Return 400 if email already exists or any validation fails
-				if (!success)
-					return BadRequest(new { message = errorMessage });
+                // Return 400 if email already exists or any validation fails
+                if (!success)
+                    return BadRequest(new { message = errorMessage });
 
-				return StatusCode(201, new { message = "User registered successfully." });
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = ex.Message });
-			}
-		}
+                return StatusCode(201, new { message = "User registered successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
         [HttpDelete("{userId}")]
         [Authorize(Roles = nameof(UserRole.Admin))]
-    	public async Task<IActionResult> DeleteUser(int userId)
-   		{
-    		try
-    		{
-        		if (userId <= 0)
-        		{
-            		return BadRequest("Invalid User ID");
-        		}
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            try
+            {
+                if (userId <= 0)
+                {
+                    return BadRequest("Invalid User ID");
+                }
 
-        		var deleted = await _userService.DeleteUser(userId);
+                var deleted = await _userService.DeleteUser(userId);
 
-        		if (!deleted)
-        		{
-            		return NotFound(DeleteUserMessages.Delete.NotFound);
-        		}
+                if (!deleted)
+                {
+                    return NotFound(DeleteUserMessages.Delete.NotFound);
+                }
 
-        		return Ok(DeleteUserMessages.Delete.Success);
-    		}
-    		catch (Exception ex)
-    		{
-        		return StatusCode(500,ex.Message);
-    		}
-		}
-
+                return Ok(DeleteUserMessages.Delete.Success);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
