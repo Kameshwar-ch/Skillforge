@@ -42,7 +42,8 @@ public class UserRepository : IUserRepository
                 return false;
             }
 
-            context.Users.Remove(user);
+           user.Status=false;
+           context.Users.Update(user);
             await context.SaveChangesAsync();
 
             Console.WriteLine("DELETE SUCCESS");
