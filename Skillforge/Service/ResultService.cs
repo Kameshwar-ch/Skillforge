@@ -12,11 +12,13 @@ public class ResultService : IResultService
 {
     private readonly SkillForgeDB _context;
     private readonly IResultRepository _resultRepository;
+    private readonly IConfiguration _configuration;
 
-    public ResultService(SkillForgeDB context,IResultRepository resultRepository)
+    public ResultService(SkillForgeDB context,IResultRepository resultRepository,IConfiguration configuration)
     {
         _context = context;
          _resultRepository = resultRepository;
+         _configuration = configuration;
     }
 
     public async Task SubmitResultAsync(SubmitAssessmentResultDto request, int reviewerId)
@@ -34,7 +36,8 @@ public class ResultService : IResultService
         if (request.Score <0)
             throw new Exception(ResultMessages.negative);
         // Compute pass / fail
-        var status = request.Score >= 35 ? ResultStatus.Pass :ResultStatus.Fail;
+        var passingScore = _configuration.GetValue<int>("AssessmentSettings:PassingScore");
+        var status = request.Score >= passingScore ? ResultStatus.Pass :ResultStatus.Fail;
 
         // Create Result entity
         var result = new Result
