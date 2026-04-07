@@ -11,7 +11,7 @@ namespace Skillforge.Controller;
 /// AssessmentController manages course assessment lifecycle.
 /// It provides endpoints for creating assessments tied to live courses, restricted to Trainers.
 /// </summary>
-[Route("api/v1/assessments")]
+[Route("api/v1/[controller]")]
 [ApiController]
 public class AssessmentController : ControllerBase
 {
@@ -35,7 +35,7 @@ public class AssessmentController : ControllerBase
     /// 400 Bad Request if validation fails or the course is not live,
     /// or 500 Internal Server Error on unexpected failure.
     /// </returns>
-    [HttpPost]
+    [HttpPost("assessments")]
     [Authorize(Roles = nameof(UserRole.Trainer))]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
