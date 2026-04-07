@@ -3,6 +3,8 @@ using Skillforge.Dto;
 using Skillforge.Domain;
 using Skillforge.Data;
 using Skillforge.Repository;
+using System.Net.Mail;
+using Skillforge.Utility;
 
 namespace Skillforge.Service;
 
@@ -23,16 +25,16 @@ public class ResultService : IResultService
         var assessment = await _context.Assessments.FindAsync(request.AssessmentID);
 
         if (assessment == null)
-            throw new Exception("Assessment not found");
+            throw new Exception(ResultMessages.NotFound);
 
          // Validate score <= max
         if (request.Score > assessment.MaxScore)
-            throw new Exception("Score exceeds maximum allowed");
+            throw new Exception(ResultMessages.exceeds);
         // Validate score <0
         if (request.Score <0)
-            throw new Exception("Score should not be negative");
+            throw new Exception(ResultMessages.negative);
         // Compute pass / fail
-        var status = request.Score >= 35 ? true : false;
+        var status = request.Score >= 35 ? ResultStatus.Pass :ResultStatus.Fail;
 
         // Create Result entity
         var result = new Result
