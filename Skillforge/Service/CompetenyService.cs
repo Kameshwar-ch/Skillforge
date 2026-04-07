@@ -23,7 +23,7 @@ namespace Skillforge.Service
 					EmployeeId = x.UserID,
 					EmployeeName = x.Name,
 					Skills = x.SkillGaps
-					.Where(sg => filterLevel == null || sg.Competency.Level == filterLevel) // FILTER LOGIC
+					.Where(sg => filterLevel == null || sg.Competency.Level == filterLevel)
 					.Select(sg => new EmployeeSkillDto
 					{
 						SkillName = sg.Competency.Name,
