@@ -77,6 +77,16 @@ public class SkillForgeDB : DbContext
 
        });
 
+       
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(e => e.Role)
+            .HasConversion<string>()      // Enum → string
+            .HasColumnType("VARCHAR(20)") // DB column type
+            .IsRequired();
+        });
+
+
         modelBuilder.Entity<Assessment>()
              .Property(a => a.Type)
              .HasConversion<string>()
