@@ -33,6 +33,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
+builder.Services.AddScoped<ICompetencyRepository, CompetencyRepository>();
+builder.Services.AddScoped<ICompetencyService,CompetenyService>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
 
