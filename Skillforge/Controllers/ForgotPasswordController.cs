@@ -29,7 +29,7 @@ public class ForgotPasswordController : ControllerBase
 
     // POST : User/forgotpassword/resetpassword
     [HttpPost("resetpassword")]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto) 
     {
         var result = await _forgetPasswordService.ResetPasswordAsync(dto);
         if (!result.Success)
