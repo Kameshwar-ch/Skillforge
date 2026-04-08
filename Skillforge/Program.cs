@@ -15,8 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // this is for fetching the data from the env file.
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(),".." ,".env"));
-// This looks in the folder above the current one
-DotNetEnv.Env.Load(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, ".env"));
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 if (string.IsNullOrEmpty(connectionString))
