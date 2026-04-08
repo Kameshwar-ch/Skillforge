@@ -5,6 +5,7 @@ using Skillforge.Data;
 using Skillforge.Repository;
 using System.Net.Mail;
 using Skillforge.Utility;
+using Microsoft.EntityFrameworkCore;
 
 namespace Skillforge.Service;
 
@@ -23,11 +24,18 @@ public class ResultService : IResultService
 
     public async Task SubmitResultAsync(SubmitAssessmentResultDto request, int reviewerId)
     {
+        
+        bool exists = await _context.Results.AnyAsync(r => r.AssessmentID == request.AssessmentID 
+                && r.EmployeeID == request.EmployeeID);
+
+        if (exists)
+            throw new Exception(ResultMessages.Duplicate);
+
         // Read Assessment (reference only)
         var assessment = await _context.Assessments.FindAsync(request.AssessmentID);
 
         if (assessment == null)
-            throw new Exception(ResultMessages.NotFound);
+            throw new KeyNotFoundException(ResultMessages.NotFound);
 
          // Validate score <= max
         if (request.Score > assessment.MaxScore)
@@ -49,7 +57,7 @@ public class ResultService : IResultService
         };
 
         // Save Result (via repository)
-        _resultRepository.SubmitAssessmentResult(result);
+        await _resultRepository.SubmitAssessmentResult(result);
 
         var AuditLog = new AuditLog
         {
@@ -58,7 +66,7 @@ public class ResultService : IResultService
             Resource = "Result",
             Timestamp = DateTime.UtcNow
         };
-        _resultRepository.AddAuditLog(AuditLog);
+        await _resultRepository.AddAuditLog(AuditLog);
 
     }
 }
