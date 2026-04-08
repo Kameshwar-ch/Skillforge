@@ -38,10 +38,15 @@ namespace Skillforge.Controllers
                     message = "Assessment result submitted successfully"
                 });
             }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new {message = ex.Message});
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
+            
         }
 
     }

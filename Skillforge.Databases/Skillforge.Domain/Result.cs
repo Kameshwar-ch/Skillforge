@@ -27,5 +27,6 @@ public class Result
 
     [Column(TypeName = "DECIMAL(4,1)")]
     public decimal Score { get; set; }
+    [Column(TypeName = "VARCHAR(20)")]
     public ResultStatus Status { get; set; }
 }
