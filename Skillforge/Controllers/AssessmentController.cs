@@ -35,7 +35,7 @@ public class AssessmentController : ControllerBase
     /// 400 Bad Request if validation fails or the course is not live,
     /// or 500 Internal Server Error on unexpected failure.
     /// </returns>
-    [HttpPost("assessments")]
+    [HttpPost("save-assessments")]
     [Authorize(Roles = nameof(UserRole.Trainer))]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
