@@ -12,7 +12,8 @@ using FluentValidation;
 var builder = WebApplication.CreateBuilder(args);
 
 // this is for fetching the data from the env file.
-DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+// This looks in the folder above the current one
+DotNetEnv.Env.Load(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, ".env"));
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 if (string.IsNullOrEmpty(connectionString))
@@ -34,7 +35,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
-
+builder.Services.AddScoped<ISkillGapService,SkillGapService>();
+builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
 {
@@ -58,14 +60,11 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddSwaggerGen();
-
-
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
