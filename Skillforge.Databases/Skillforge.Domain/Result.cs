@@ -1,7 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 namespace Skillforge.Domain;
-
+public enum ResultStatus
+{
+    Pass,
+    Fail
+};
 public class Result
 {
     [Column(TypeName = "INT")]
@@ -23,5 +27,5 @@ public class Result
 
     [Column(TypeName = "DECIMAL(4,1)")]
     public decimal Score { get; set; }
-    public bool Status { get; set; }
+    public ResultStatus Status { get; set; }
 }

@@ -32,11 +32,16 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
+builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ISkillGapService,SkillGapService>();
 builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
+builder.Services.AddScoped<IResultRepository,ResultRepository>();
+builder.Services.AddScoped<IResultService,ResultService>();
+
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
 {
@@ -62,6 +67,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateAudience = true,
@@ -70,7 +76,8 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "Skillforge",
         ValidAudience = "SkillForgeUsers",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        RoleClaimType = "role"
     };
 });
 
@@ -86,6 +93,8 @@ builder.Services.AddControllers()
 
 builder.Services.AddAuthorization();
 builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
