@@ -44,6 +44,12 @@ public class ForgotPasswordService : IForgotPasswordService
         if (dto.NewPassword != dto.ConfirmPassword)
             return ApiResponseDto.FailResponse(ResetPasswordUtility.NoMatch);
 
+        if (!(dto.NewPassword.Any(char.IsDigit)))
+            return ApiResponseDto.FailResponse(ResetPasswordUtility.NoNumericInPassword);
+        
+        if (!(dto.NewPassword.Any(char.IsUpper)))
+            return ApiResponseDto.FailResponse(ResetPasswordUtility.NoUppercaseInPassword);
+
         // Here once more we will check whether the Email entered for reset exists or not 
         var user = await UserRepository.GetByEmailAsync(dto.Email);
         if (user == null)

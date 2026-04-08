@@ -30,6 +30,31 @@ public class UserRepository : IUserRepository
     {
         this.context = context;
     }
+
+    public async Task<User?> Authenticate(string email, string password)
+    {
+        try
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+            {
+                return null;
+            }
+
+            bool isValidUser = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            if (!isValidUser)
+            {
+                return null;
+            }
+
+            return user;
+        }
+        catch (System.Exception ex)
+        {
+            throw new Exception("No such User Exists. " + ex);
+        }
+    }
+
     public async Task<bool> DeleteUser(int userId)
     {
         try
@@ -88,29 +113,7 @@ public class UserRepository : IUserRepository
         return users;
     }
 
-    public async Task<User?> Authenticate(string email, string password)
-    {
-        try
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null)
-            {
-                return null;
-            }
-
-            bool isValidUser = BCrypt.Net.BCrypt.Verify(password, user.Password);
-            if (!isValidUser)
-            {
-                return null;
-            }
-
-            return user;
-        }
-        catch (System.Exception ex)
-        {
-            throw new Exception("No such User Exists. " + ex);
-        }
-    }
+    
 
     /// <summary>
     /// Retrieves a user entity from the database using the specified userId.
