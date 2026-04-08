@@ -38,4 +38,3 @@ public class ForgotPasswordController : ControllerBase
         return Ok(result);
     }
 }
-
