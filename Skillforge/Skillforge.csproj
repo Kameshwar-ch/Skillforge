@@ -31,9 +31,9 @@
     <ProjectReference Include="..\Skillforge.Databases\Skillforge.Data\Skillforge.Data.csproj" />
   </ItemGroup>
 <ItemGroup>
-  <Folder Include="Repository\"/>
+  <Folder Include="Repository\" />
   <Folder Include="Utility\" />
-  <Folder Include="Service\"/>
+  <Folder Include="Service\" />
   <Folder Include="Controller\" />
 </ItemGroup>
 </Project>
