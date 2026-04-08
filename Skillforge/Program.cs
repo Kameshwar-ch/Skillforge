@@ -37,6 +37,8 @@ builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<ISkillGapService,SkillGapService>();
+builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
 builder.Services.AddScoped<IResultRepository,ResultRepository>();
 builder.Services.AddScoped<IResultService,ResultService>();
 
@@ -90,6 +92,7 @@ builder.Services.AddControllers()
 
 
 builder.Services.AddAuthorization();
+builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
@@ -97,7 +100,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
