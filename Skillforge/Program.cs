@@ -43,6 +43,9 @@ builder.Services.AddScoped<ISkillGapService,SkillGapService>();
 builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
 builder.Services.AddScoped<IResultRepository,ResultRepository>();
 builder.Services.AddScoped<IResultService,ResultService>();
+builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICertificationService, CertificationService>();
 
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
