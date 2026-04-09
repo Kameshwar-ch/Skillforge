@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Data;
 using Skillforge.Domain;
-using System.Linq;
 
 namespace Skillforge.Repository
 {
@@ -14,19 +13,37 @@ namespace Skillforge.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<SkillGap>> GetAllGapsAsync(DateTime? startDate, DateTime? endDate)
+        public async Task<IEnumerable<SkillGap>> GetAllGapsAsync(
+            DateTime? startDate, 
+            DateTime? endDate, 
+            int? employeeId = null, 
+            int? competencyId = null, 
+            int? gapLevel = null)
         {
             var query = _context.SkillGaps
                 .Include(g => g.Employee)
                 .Include(g => g.Competency)
                 .AsQueryable();
 
-            // Support for Date Filters as per Jira Requirement
+            // Date Filters (Jira Requirement)
             if (startDate.HasValue)
                 query = query.Where(g => g.DateIdentified >= startDate.Value);
 
             if (endDate.HasValue)
                 query = query.Where(g => g.DateIdentified <= endDate.Value);
+
+            // New Functional Filters
+            if (employeeId.HasValue)
+                query = query.Where(g => g.EmployeeID == employeeId.Value);
+
+            if (competencyId.HasValue)
+                query = query.Where(g => g.CompetencyID == competencyId.Value);
+
+          if (gapLevel.HasValue)
+            {
+    // Cast g.GapLevel to (int) to allow comparison with gapLevel.Value
+                query = query.Where(g => (int)g.GapLevel == gapLevel.Value);
+            }
 
             return await query.ToListAsync();
         }
