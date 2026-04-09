@@ -38,7 +38,7 @@ public class AssessmentController : ControllerBase
     [HttpPost("save-assessments")]
     [Authorize(Roles = nameof(UserRole.Trainer))]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateAssessment([FromBody] CreateAssessmentRequestDto request)
     {
@@ -53,7 +53,7 @@ public class AssessmentController : ControllerBase
             var (success, errorMessage, assessmentId) = await _assessmentService.CreateAssessmentAsync(request);
 
             if (!success)
-                return BadRequest(new { message = errorMessage });
+                return NotFound(new { message = errorMessage });
 
             await _auditService.LogAsync(trainerId, "AssessmentCreated", $"Assessment/{assessmentId}");
 

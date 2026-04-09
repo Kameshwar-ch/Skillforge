@@ -18,6 +18,7 @@ namespace Skillforge.Controller
         {
             _userService = userService;
         }
+        
         [HttpGet("GetAll")]
         [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> GetAllUsers()
