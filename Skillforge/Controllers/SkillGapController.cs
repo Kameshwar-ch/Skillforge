@@ -17,7 +17,7 @@ namespace Skillforge.Controller
             _skillGapService = skillGapService;
         }
         [HttpGet]
-        [Authorize(Roles = "HR")]
+        [Authorize(Roles = "HR,Admin")]
         public async Task<IActionResult> GetSkillGaps([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             try
