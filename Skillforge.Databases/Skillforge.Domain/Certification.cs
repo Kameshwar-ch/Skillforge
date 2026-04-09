@@ -7,7 +7,7 @@ public class Certification
 {
     [Key]
     [Column(TypeName = "INT")]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int CertificationID { get; set; }
 
     [Required]
