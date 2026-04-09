@@ -1,5 +1,9 @@
 namespace Skillforge.Dto
 {
+    /// <summary>
+    /// Response DTO for audit logs.
+    /// Represents a single immutable audit log entry returned to clients.
+    /// </summary>
     public class AuditLogResponseDto
     {
         public int AuditID { get; set; }
@@ -8,11 +12,12 @@ namespace Skillforge.Dto
         public string Resource { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; }
     }
-      public class PagedResult<T>
+
+    /// <summary>
+    /// Result wrapper for audit logs.
+    /// </summary>
+    public class Result<T>
     {
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int TotalPages { get; set; }
         public IEnumerable<T> Items { get; set; } = Enumerable.Empty<T>();
     }
 }
