@@ -1,14 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Data;
 using Skillforge.Domain;
-using Skillforge.Utility;
 
 namespace Skillforge.Repository
 {
-    /// <summary>
-    /// Repository implementation for accessing immutable AuditLog records.
-    /// Provides paginated and sortable queries.
-    /// </summary>
     public class AuditLogRepository : IAuditLogRepository
     {
         private readonly SkillForgeDB _context;
@@ -18,23 +13,52 @@ namespace Skillforge.Repository
             _context = context;
         }
 
-        public async Task<List<AuditLog>> GetAuditLogsPagedAsync(int page, int pageSize, string sortBy, string sortOrder)
+        public async Task<List<AuditLog>> GetAuditLogsFilteredAsync(
+            int page, int pageSize, string sortBy, string sortOrder,
+            int? auditId, int? userId, string? resource, string? action, DateTime? timestamp)
         {
             var query = _context.AuditLogs.AsQueryable();
 
-            // Default sort by Timestamp if no valid sortBy provided
-            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "Timestamp" : sortBy;
+            // Apply filters
+            if (auditId.HasValue)
+                query = query.Where(a => a.AuditID == auditId.Value);
 
-            query = sortOrder.ToLower() == "asc"
-                ? query.OrderBy(e => EF.Property<object>(e, sortBy))
-                : query.OrderByDescending(e => EF.Property<object>(e, sortBy));
+            if (userId.HasValue)
+                query = query.Where(a => a.UserID == userId.Value);
 
+            if (!string.IsNullOrWhiteSpace(resource))
+                query = query.Where(a => a.Resource.Contains(resource));
+
+            if (!string.IsNullOrWhiteSpace(action))
+                query = query.Where(a => a.Action.Contains(action));
+
+            if (timestamp.HasValue)
+                query = query.Where(a => a.Timestamp.Date == timestamp.Value.Date);
+
+            // Sorting
+            switch (sortBy)
+            {
+                case "AuditID":
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.AuditID) : query.OrderByDescending(a => a.AuditID);
+                    break;
+                case "UserID":
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.UserID) : query.OrderByDescending(a => a.UserID);
+                    break;
+                case "Resource":
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.Resource) : query.OrderByDescending(a => a.Resource);
+                    break;
+                case "Action":
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.Action) : query.OrderByDescending(a => a.Action);
+                    break;
+                case "Timestamp":
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.Timestamp) : query.OrderByDescending(a => a.Timestamp);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid sort field. Allowed: AuditID, UserID, Resource, Action, Timestamp.");
+            }
+
+            // Pagination
             return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-        }
-
-        public async Task<AuditLog?> GetAuditLogByIdAsync(int auditId)
-        {
-            return await _context.AuditLogs.FirstOrDefaultAsync(a => a.AuditID == auditId);
         }
     }
 }

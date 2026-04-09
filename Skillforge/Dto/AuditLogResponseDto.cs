@@ -1,9 +1,6 @@
 namespace Skillforge.Dto
 {
-    /// <summary>
-    /// Data Transfer Object representing an immutable audit log entry.
-    /// </summary>
-    public class AuditLogDto
+    public class AuditLogResponseDto
     {
         public int AuditID { get; set; }
         public int? UserID { get; set; }
@@ -11,11 +8,7 @@ namespace Skillforge.Dto
         public string Resource { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; }
     }
-
-    /// <summary>
-    /// Generic wrapper for paginated results.
-    /// </summary>
-    public class PagedResult<T>
+      public class PagedResult<T>
     {
         public int Page { get; set; }
         public int PageSize { get; set; }
