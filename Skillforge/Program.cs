@@ -37,6 +37,10 @@ builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<ISkillGapService,SkillGapService>();
+builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
+builder.Services.AddScoped<IResultRepository,ResultRepository>();
+builder.Services.AddScoped<IResultService,ResultService>();
 
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
@@ -96,7 +100,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
