@@ -8,15 +8,16 @@ namespace Skillforge.Repository;
 
 public class ComplianceRecordRepository : IComplianceRecord
 {
-/// <summary>
-/// This repo is directly dependent upon the database layer so this needs the context class
-/// we intake the context class using the dependency injection
-/// </summary>
+    /// <summary>
+    /// This repo is directly dependent upon the database layer so this needs the context class
+    /// we intake the context class using the dependency injection
+    /// </summary>
     private readonly SkillForgeDB _context;
     public ComplianceRecordRepository(SkillForgeDB context)
     {
         _context = context;
     }
+
 
     public async Task<IEnumerable<ComplianceRecord>> GetComplianceRecordAsync()
     {
