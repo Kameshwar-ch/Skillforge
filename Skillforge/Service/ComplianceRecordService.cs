@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Skillforge.Utility;
 
 namespace Skillforge.Service;
-
+/// <summary>
+/// Contains business logic for compliance record operations including summary generation and refresh.
+/// </summary>
 public class ComplianceRecordService : IComplianceRecordService
 {
     private readonly IComplianceRecord _complianceRecordRepo;
@@ -18,6 +20,10 @@ public class ComplianceRecordService : IComplianceRecordService
         _complianceRecordRepo = ComplianceRecordRepository;
         _CertificationRepository = CertificationRepository;
     }
+
+    /// <summary>
+    /// This function gets the complete summary of all the employees, and tells whether they are compliant/non-compliant
+    /// </summary>
     public async Task<ComplianceSummaryDto> GetComplianceSummaryAsync()
     {
         IEnumerable<ComplianceRecord> crs = await _complianceRecordRepo.GetComplianceRecordAsync();
@@ -25,11 +31,14 @@ public class ComplianceRecordService : IComplianceRecordService
         int TotalEmp = crs.Select(c => c.EmployeeID).Distinct().Count();
         int CompliantEmp = crs.GroupBy(c => c.EmployeeID).Count(c => c.All(c => c.Status));
         int NonCompliantEmp = TotalEmp - CompliantEmp;
-        double CompliantPercent = (CompliantEmp / TotalEmp) * 100;
+        double CompliantPercent = ((1.0 * CompliantEmp) / TotalEmp) * 100;
         ComplianceSummaryDto csd = new ComplianceSummaryDto(TotalEmp, CompliantEmp, NonCompliantEmp, CompliantPercent, ComplianceRecordDtos);
         return csd;
     }
 
+    /// <summary>
+    /// This Updates the compliance records table with the latest updates from the certification table
+    /// </summary>
     public async Task<string> UpdateComplianceRecords()
     {
         await _complianceRecordRepo.DeleteComplianceRecords();
