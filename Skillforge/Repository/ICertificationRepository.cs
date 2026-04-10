@@ -7,6 +7,8 @@ namespace Skillforge.Repository;
 /// </summary>
 public interface ICertificationRepository
 {
+    Task<List<Certification>> GetAllCertifications();
+    
     /// <summary>Retrieves a user by ID; null if not found.</summary>
     Task<User?> GetUserByIdAsync(int userId);
 
