@@ -19,18 +19,19 @@ namespace Skillforge.Controller
     public class AuditLogController : ControllerBase
     {
         private readonly IAuditLogService _auditLogService;
-
         public AuditLogController(IAuditLogService auditLogService)
         {
             _auditLogService = auditLogService;
         }
-
         [HttpGet]
         [Authorize(Roles = "Admin,HR")]
         public async Task<IActionResult> GetAuditLogs([FromQuery] AuditLogFilterRequestDto request)
         {
             try
             {
+                if (request.AuditID <= 0)
+                    return StatusCode(400, new { message = AuditLogMessages.InvalidId });
+                    
                 var logs = await _auditLogService.GetAuditLogsAsync(request);
 
                 if (logs.Items == null || !logs.Items.Any())
