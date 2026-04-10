@@ -37,18 +37,21 @@ namespace Skillforge.Repository
 
             if (request.Timestamp.HasValue)
                 query = query.Where(x => x.Timestamp == request.Timestamp.Value);
-
             // Apply sorting based on enums
-            query = request.SortBy switch
+           if (request.SortOrder == SortOrder.asc)
             {
-                SortBy.AuditID   => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.AuditID)   : query.OrderByDescending(x => x.AuditID),
-                SortBy.UserID    => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.UserID)    : query.OrderByDescending(x => x.UserID),
-                SortBy.Resource  => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Resource)  : query.OrderByDescending(x => x.Resource),
-                SortBy.Action    => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Action)    : query.OrderByDescending(x => x.Action),
-                SortBy.Timestamp => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Timestamp) : query.OrderByDescending(x => x.Timestamp),
-                _ => query.OrderByDescending(x => x.Timestamp) // default fallback
-            };
-
+                query = query
+                    .OrderBy(p => p.AuditID)
+                    .ThenBy(p => p.UserID)
+                    .ThenBy(p => p.Timestamp);
+            }
+            else
+            {
+                query = query
+                    .OrderByDescending(p => p.AuditID)
+                    .ThenByDescending(p => p.UserID)
+                    .ThenByDescending(p => p.Timestamp);
+            }
             return await query.ToListAsync();
         }
     }

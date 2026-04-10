@@ -9,13 +9,11 @@ namespace Skillforge.Controller
 {
     /// <summary>
     /// Controller for retrieving immutable audit logs.
-    /// Supports filtering and sorting only (no pagination).
     /// Filters: AuditID, UserID, Resource, Action, Timestamp.
     /// Sorting: AuditID, UserID, Resource, Action, Timestamp (asc/desc).
     /// </summary>
     [Route("api/v1/[controller]")]
     [ApiController]
-    [Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.HR)}")]
     public class AuditLogController : ControllerBase
     {
         private readonly IAuditLogService _auditLogService;
