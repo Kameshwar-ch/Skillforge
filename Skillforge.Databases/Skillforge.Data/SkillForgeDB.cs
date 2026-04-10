@@ -36,7 +36,7 @@ public class SkillForgeDB : DbContext
         {
             // Path.Combine handles the slashes for you. 
             // Adding ".." twice moves the pointer two levels up the folder tree.
-            string envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+            string envPath = Path.Combine(Directory.GetCurrentDirectory(),"..","..",".env");
 
             DotNetEnv.Env.Load(envPath);
 
@@ -81,6 +81,14 @@ public class SkillForgeDB : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.Property(e => e.Role)
+            .HasConversion<string>()      // Enum → string
+            .HasColumnType("VARCHAR(20)") // DB column type
+            .IsRequired();
+        });
+
+        modelBuilder.Entity<Result>(entity =>
+        {
+            entity.Property(e => e.Status)
             .HasConversion<string>()      // Enum → string
             .HasColumnType("VARCHAR(20)") // DB column type
             .IsRequired();

@@ -8,6 +8,8 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi;
+using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,9 +32,20 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
+builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<IAuditService, EFAuditRepository>();
 builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<ICompetencyRepository, CompetencyRepository>();
+builder.Services.AddScoped<ICompetencyService, CompetencyService>();
+builder.Services.AddScoped<ISkillGapService,SkillGapService>();
+builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
+builder.Services.AddScoped<IResultRepository,ResultRepository>();
+builder.Services.AddScoped<IResultService,ResultService>();
+builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICertificationService, CertificationService>();
 
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
@@ -59,6 +72,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateAudience = true,
@@ -67,7 +81,8 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "Skillforge",
         ValidAudience = "SkillForgeUsers",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        RoleClaimType = "role"
     };
 });
 
@@ -90,7 +105,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
