@@ -6,7 +6,7 @@ using Skillforge.Utility;
 
 namespace Skillforge.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 
 /// <summary>
