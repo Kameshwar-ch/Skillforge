@@ -98,6 +98,12 @@ public class UserRepository : IUserRepository
 
     public async Task UserRegisterAsync(User user)
     {
+        Console.WriteLine("User Id: " + user.UserID);
+        Console.WriteLine("User NAME: " + user.Name);
+        Console.WriteLine("User Role: " + user.Role);
+        Console.WriteLine("User Phone: " + user.Phone);
+        Console.WriteLine("User Email: " + user.Email);
+        Console.WriteLine("User Password: " + user.Password);
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
     }

@@ -14,7 +14,7 @@ public class UserService : IUserService
     {
         _userRepository = userRepository;
     }
-   /// <summary>
+    /// <summary>
     /// Updates an existing user's information based on the provided userId.
     /// Retrieves the user from the repository, applies the allowed updates,
     /// and persists the changes. Returns false if the user does not exist.
@@ -38,12 +38,12 @@ public class UserService : IUserService
         user.Status = request.Status;
 
         return await _userRepository.UpdateUser(user);
-        
+
     }
-   public async Task<bool> DeleteUser(int userId)
-{
-    return await _userRepository.DeleteUser(userId);
-}
+    public async Task<bool> DeleteUser(int userId)
+    {
+        return await _userRepository.DeleteUser(userId);
+    }
     public async Task<List<UserResponseDto>> GetAllUsersAsync()
     {
         List<User> users;
@@ -72,32 +72,45 @@ public class UserService : IUserService
         return userResponseDtos;
     }
 
-    	public async Task<(bool Success, string ErrorMessage)> UserRegisterAsync(UserRequestDto userRequestDto)
-	{
-		//block duplicate email registrations before doing any DB write
+    public async Task<(bool Success, string ErrorMessage)> UserRegisterAsync(UserRequestDto userRequestDto)
+    {
+        //block duplicate email registrations before doing any DB write
+        var existingUser = await _userRepository.GetByEmailAsync(userRequestDto.Email!);
 
-		var existingUser = await _userRepository.GetByEmailAsync(userRequestDto.Email!);
+        if (existingUser != null && existingUser.Status)
+            return (false, "Email is already registered.");
 
-		if (existingUser != null && existingUser.Status)
-			return (false, "Email is already registered.");
+        if (existingUser != null && !existingUser.Status)
+            return (false, "Your account is inactive. Please contact support.");
 
-		if (existingUser != null && !existingUser.Status)
-			return (false, "Your account is inactive. Please contact support.");
+        UserRole role = UserRole.Employee;
+        userRequestDto.Role = userRequestDto.Role.ToLower();
+        if (userRequestDto.Role == "employee")
+            role = UserRole.Employee;
+        else if (userRequestDto.Role == "trainer")
+            role = UserRole.Trainer;
+        else if (userRequestDto.Role == "admin")
+            role = UserRole.Admin;
+        else if (userRequestDto.Role == "hr")
+            role = UserRole.HR;
+        else
+            role = UserRole.Manager;
+        // Map DTO → Domain model, assigning default role and hashing the password
+        var userModel = new User
+        {
+            Name = userRequestDto.Name,
+            Role = role,
+            Email = userRequestDto.Email,
+            Phone = userRequestDto.Phone,
+            Password = BCrypt.Net.BCrypt.HashPassword(userRequestDto.Password),
+            Status = true
 
-		// Map DTO → Domain model, assigning default role and hashing the password
-		var userModel = new User
-		{
-			Name = userRequestDto.Name,
-			Role = UserRole.Employee,
-			Email = userRequestDto.Email,
-			Phone = userRequestDto.Phone,
-			Password = BCrypt.Net.BCrypt.HashPassword(userRequestDto.Password),
-			Status = true
-		};
+        };
 
 
-		await _userRepository.UserRegisterAsync(userModel);
-		return (true, null!);
-	}
+
+        await _userRepository.UserRegisterAsync(userModel);
+        return (true, null!);
+    }
 
 }
