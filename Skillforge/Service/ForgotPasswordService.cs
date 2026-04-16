@@ -44,6 +44,9 @@ public class ForgotPasswordService : IForgotPasswordService
         if (dto.NewPassword != dto.ConfirmPassword)
             return ApiResponseDto.FailResponse(ResetPasswordUtility.NoMatch);
 
+        if (dto.NewPassword.Count() < 8)
+            return ApiResponseDto.FailResponse(ResetPasswordUtility.PasswordLength);
+
         if (!(dto.NewPassword.Any(char.IsDigit)))
             return ApiResponseDto.FailResponse(ResetPasswordUtility.NoNumericInPassword);
         

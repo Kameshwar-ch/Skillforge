@@ -16,6 +16,9 @@ public class CertificationRepository : ICertificationRepository
         _context = context;
     }
 
+    public async Task<List<Certification>> GetAllCertifications()
+        => await _context.Certifications.ToListAsync();
+
     public async Task<User?> GetUserByIdAsync(int userId)
         => await _context.Users.FindAsync(userId);
 
