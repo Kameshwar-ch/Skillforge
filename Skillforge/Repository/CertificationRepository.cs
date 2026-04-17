@@ -29,9 +29,9 @@ public class CertificationRepository : ICertificationRepository
                 r.Status == ResultStatus.Pass &&
                 r.Assessment.CourseID == courseId);
 
-    public async Task<bool> ActiveCertificationExistsAsync(int employeeId, int courseId)
+    public async Task<Certification?> GetActiveCertificationAsync(int employeeId, int courseId)
         => await _context.Certifications
-            .AnyAsync(c =>
+            .FirstOrDefaultAsync(c =>
                 c.EmployeeID == employeeId &&
                 c.CourseID == courseId &&
                 c.Status == "Active");
