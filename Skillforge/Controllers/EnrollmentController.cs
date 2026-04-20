@@ -17,7 +17,7 @@ namespace Skillforge.Controllers
             enrollment = _enrollment;
         }
         [HttpPost]
-        [Authorize(Roles = "Admin,Trainer")]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Enroll(EnrollmentDto dto)
         {
             try
