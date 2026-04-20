@@ -30,28 +30,42 @@ namespace Skillforge.Repository
                 query = query.Where(x => x.UserID == request.UserID.Value);
 
             if (!string.IsNullOrWhiteSpace(request.Resource))
-                query = query.Where(x => x.Resource == request.Resource);
+                query = query.Where(x => EF.Functions.Like(x.Resource, $"%{request.Resource}%"));
 
             if (!string.IsNullOrWhiteSpace(request.Action))
-                query = query.Where(x => x.Action == request.Action);
+                query = query.Where(x => EF.Functions.Like(x.Action, $"%{request.Action}%"));
 
+            // Timestamp filter: date-only OR exact timestamp
             if (request.Timestamp.HasValue)
+            {
+                var ts = request.Timestamp.Value;
+
+                if (ts.TimeOfDay == TimeSpan.Zero)
+                {
+                    // Only date provided → match all logs for that day
+                    query = query.Where(x => x.Timestamp.Date == ts.Date);
+                }
+                else
+                {
+                    // Full date + time provided → exact match
+                    query = query.Where(x => x.Timestamp == ts);
+                }
+            }
+
+            // Apply sorting
                 query = query.Where(x => x.Timestamp == request.Timestamp.Value);
+
             // Apply sorting based on enums
-           if (request.SortOrder == SortOrder.asc)
+            query = request.SortBy switch
             {
-                query = query
-                    .OrderBy(p => p.AuditID)
-                    .ThenBy(p => p.UserID)
-                    .ThenBy(p => p.Timestamp);
-            }
-            else
-            {
-                query = query
-                    .OrderByDescending(p => p.AuditID)
-                    .ThenByDescending(p => p.UserID)
-                    .ThenByDescending(p => p.Timestamp);
-            }
+                SortBy.AuditID   => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.AuditID)   : query.OrderByDescending(x => x.AuditID),
+                SortBy.UserID    => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.UserID)    : query.OrderByDescending(x => x.UserID),
+                SortBy.Resource  => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Resource)  : query.OrderByDescending(x => x.Resource),
+                SortBy.Action    => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Action)    : query.OrderByDescending(x => x.Action),
+                SortBy.Timestamp => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Timestamp) : query.OrderByDescending(x => x.Timestamp),
+                _ => query.OrderByDescending(x => x.Timestamp) // default fallback
+            };
+
             return await query.ToListAsync();
         }
     }
