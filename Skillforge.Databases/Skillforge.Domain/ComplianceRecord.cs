@@ -22,6 +22,7 @@ public class ComplianceRecord
 
     public bool Status { get; set; }
 
+    // this will be todays date time
     [Column(TypeName ="DATETIME")]
     public DateTime Date { get; set; }
 
