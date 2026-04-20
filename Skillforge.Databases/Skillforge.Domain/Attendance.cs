@@ -1,30 +1,31 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Skillforge.Domain;
+
+public enum AttendanceStatus
+{
+    Present,
+    Absent
+}
+
 [Table("Attendance")]
-//composite primary key
-
 public class Attendance
-{    
+{
     [Key]
+    [Column(TypeName = "INT")]
     public int AttendanceID { get; set; }
-
-    [ForeignKey("EnrollmentIdNavigation")]
+    [Required]
+    [Column(TypeName = "INT")]
     public int EnrollmentID { get; set; }
+    [ForeignKey("EnrollmentID")]
+    public virtual Enrollment EnrollmentIdNavigation { get; set; }
     [Required]
     [Column(TypeName = "DATETIME")]
     public DateTime AttendanceDate { get; set; }
-
-    [Required]
-    public bool Status { get; set; } 
-    public virtual Enrollment EnrollmentIdNavigation { get; set; }
-    }
-
-
-
-
+    [Column(TypeName = "VARCHAR(20)")]
+    public AttendanceStatus Status { get; set; }
+}
 
 
