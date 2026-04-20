@@ -43,7 +43,6 @@ namespace Skillforge.Controller
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginRequest request)
 		{
-			Console.WriteLine(request.Email + " " + request.Password);
 			try
 			{
 				if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.Password))

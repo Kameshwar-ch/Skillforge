@@ -72,7 +72,6 @@ namespace Skillforge.Controller
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UserRegister(UserRequestDto userRequestDto)
         {
-            Console.WriteLine("HELLO IN USER REGISTER CONTROLLER");
             try
             {
                 var (success, errorMessage) = await _userService.UserRegisterAsync(userRequestDto);
