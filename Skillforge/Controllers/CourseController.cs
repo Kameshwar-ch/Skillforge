@@ -51,7 +51,7 @@ namespace Skillforge.Controller
         }
 
 		[HttpPost("{cid}/modules")]
-		[Authorize(Roles = "Trainer")]
+		[Authorize(Roles = "Trainer,Admin")]
 		public async Task<IActionResult> AddModule(int cid, [FromBody] CreateModuleDto dto)
 		{
 			var userIdClaim = User.FindFirst("id")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
