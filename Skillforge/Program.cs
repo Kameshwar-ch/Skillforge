@@ -46,6 +46,8 @@ builder.Services.AddScoped<IResultService,ResultService>();
 builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICertificationService, CertificationService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)
