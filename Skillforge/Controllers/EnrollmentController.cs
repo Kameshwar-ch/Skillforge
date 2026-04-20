@@ -7,14 +7,14 @@ using Skillforge.Service;
 
 namespace Skillforge.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class EnrollmentController : ControllerBase
     {
-        IEnrollmentService enrollment;
-        public EnrollmentController(IEnrollmentService _enrollment)
+        IEnrollmentService enrollmentService;
+        public EnrollmentController(IEnrollmentService _enrollmentService)
         {
-            enrollment = _enrollment;
+            enrollmentService = _enrollmentService;
         }
         [HttpPost]
         [Authorize(Roles = "Employee")]
@@ -22,7 +22,7 @@ namespace Skillforge.Controllers
         {
             try
             {
-                var id = await enrollment.EnrollAsync(dto.CourseId, dto.EmployeeId);
+                var id = await enrollmentService.EnrollAsync(dto.CourseId, dto.EmployeeId);
                 return Created("", new { enrollmentId = id });
             }
             catch(KeyNotFoundException ex)
