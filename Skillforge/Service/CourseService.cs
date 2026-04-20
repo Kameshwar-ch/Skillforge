@@ -9,11 +9,11 @@ namespace Skillforge.Service
 {
 	public class CourseService : ICourseService
 	{
-		private readonly ICourseRepository _repository;
+		private readonly ICourseRepository _courseRepository;
 		private readonly IAuditService _auditService;
-		public CourseService(ICourseRepository repository, IAuditService auditService)
+		public CourseService(ICourseRepository courseRepository, IAuditService auditService)
 		{
-			_repository = repository;
+			_courseRepository = courseRepository;
 			_auditService = auditService;
 		}
 		public async Task<int> CreateModuleAsync(int courseId, CreateModuleDto dto, int? trainerId)
@@ -23,7 +23,7 @@ namespace Skillforge.Service
 				if (dto.Duration <= 0)
 					throw new ArgumentException(CourseMessages.InvalidDuration);
 
-				var course = await _repository.GetCourseByIdAsync(courseId);
+				var course = await _courseRepository.GetCourseByIdAsync(courseId);
 
 				if (course == null)
 					throw new KeyNotFoundException(CourseMessages.CourseNotFound);
@@ -40,7 +40,7 @@ namespace Skillforge.Service
 					Status = false
 				};
 
-				int moduleId = await _repository.AddModuleAsync(newModule);
+				int moduleId = await _courseRepository.AddModuleAsync(newModule);
 				await _auditService.LogAsync(trainerId, "Module Created Successfully", $"Module: {dto.Title} (ID: {moduleId}) for Course: {courseId}");
 				return moduleId;
 
