@@ -12,6 +12,9 @@ public class UserRequestDto
 	public string? Email { get; set; }
 
 	[Required]
+	public string? Role {get;set;}
+
+	[Required]
 	public string? Phone { get; set; }
 
 	[Required]
