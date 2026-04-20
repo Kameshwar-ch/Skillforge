@@ -20,4 +20,12 @@ public class NotificationService : INotificationService
             "CertificationIssued",
             $"Certification/{certificationId}");
     }
+
+    public async Task NotifyReportGeneratedAsync(int adminId, int reportId, string scope)
+    {
+        await _auditService.LogAsync(
+            adminId,
+            "ScheduledReportGenerated",
+            $"Report/{reportId}/Scope/{scope}");
+    }
 }

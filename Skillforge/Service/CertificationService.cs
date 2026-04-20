@@ -1,3 +1,4 @@
+using Skillforge.Constants;
 using Skillforge.Domain;
 using Skillforge.Dto;
 using Skillforge.Repository;
@@ -26,22 +27,32 @@ public class CertificationService : ICertificationService
     {
         var employee = await _certificationRepository.GetUserByIdAsync(dto.EmployeeId);
         if (employee == null)
-            return (false, "Employee not found.", null);
+            return (false, CertificationErrorMessages.EmployeeNotFound, null);
 
         var course = await _certificationRepository.GetCourseByIdAsync(dto.CourseId);
         if (course == null)
-            return (false, "Course not found.", null);
+            return (false, CertificationErrorMessages.CourseNotFound, null);
 
         if (!course.Status)
-            return (false, "Course is not live.", null);
+            return (false, CertificationErrorMessages.CourseNotLive, null);
 
         bool hasPassed = await _certificationRepository.HasPassedAssessmentForCourseAsync(dto.EmployeeId, dto.CourseId);
         if (!hasPassed)
-            return (false, "Employee has not passed an assessment for this course.", null);
+            return (false, CertificationErrorMessages.AssessmentNotPassed, null);
 
-        bool alreadyCertified = await _certificationRepository.ActiveCertificationExistsAsync(dto.EmployeeId, dto.CourseId);
-        if (alreadyCertified)
-            return (false, "An active certification already exists for this employee and course.", null);
+        var existingCertification = await _certificationRepository.GetActiveCertificationAsync(dto.EmployeeId, dto.CourseId);
+        if (existingCertification != null)
+            return (false, CertificationErrorMessages.ActiveCertificationExists, new CertificationResponseDto
+            {
+                CertificationId = existingCertification.CertificationID,
+                EmployeeId = existingCertification.EmployeeID,
+                CourseId = existingCertification.CourseID,
+                CourseName = course.Title,
+                CourseDescription = course.Description,
+                IssueDate = existingCertification.IssueDate,
+                ExpiryDate = existingCertification.ExpiryDate,
+                Status = existingCertification.Status
+            });
 
         var issueDate = DateTime.Now;
         var certification = new Certification
@@ -62,6 +73,8 @@ public class CertificationService : ICertificationService
             CertificationId = certificationId,
             EmployeeId = dto.EmployeeId,
             CourseId = dto.CourseId,
+            CourseName = course.Title,
+            CourseDescription = course.Description,
             IssueDate = certification.IssueDate,
             ExpiryDate = certification.ExpiryDate,
             Status = certification.Status
