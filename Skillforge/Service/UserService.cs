@@ -82,32 +82,17 @@ public class UserService : IUserService
 
         if (existingUser != null && !existingUser.Status)
             return (false, "Your account is inactive. Please contact support.");
-
-        UserRole role = UserRole.Employee;
-        userRequestDto.Role = userRequestDto.Role.ToLower();
-        if (userRequestDto.Role == "employee")
-            role = UserRole.Employee;
-        else if (userRequestDto.Role == "trainer")
-            role = UserRole.Trainer;
-        else if (userRequestDto.Role == "admin")
-            role = UserRole.Admin;
-        else if (userRequestDto.Role == "hr")
-            role = UserRole.HR;
-        else
-            role = UserRole.Manager;
         // Map DTO → Domain model, assigning default role and hashing the password
         var userModel = new User
         {
             Name = userRequestDto.Name,
-            Role = role,
+            Role = UserRole.Employee,
             Email = userRequestDto.Email,
             Phone = userRequestDto.Phone,
             Password = BCrypt.Net.BCrypt.HashPassword(userRequestDto.Password),
             Status = true
 
         };
-
-
 
         await _userRepository.UserRegisterAsync(userModel);
         return (true, null!);
