@@ -1,10 +1,7 @@
 using System;
 using Skillforge.Domain;
 using Skillforge.Dto.ComplianceRecordDto;
-using Skillforge.Domain;
 using Skillforge.Repository;
-using System.Runtime.ConstrainedExecution;
-using Microsoft.AspNetCore.Mvc;
 using Skillforge.Utility;
 
 namespace Skillforge.Service;
@@ -29,6 +26,8 @@ public class ComplianceRecordService : IComplianceRecordService
         IEnumerable<ComplianceRecord> crs = await _complianceRecordRepo.GetComplianceRecordAsync();
         List<GetComplianceDto> ComplianceRecordDtos = crs.Select(c => new GetComplianceDto(c.ComplianceID, c.EmployeeID, c.Employee.Name, c.CertificationID, c.Certification.Course.Title, c.Status, c.Date)).ToList();
         int TotalEmp = crs.Select(c => c.EmployeeID).Distinct().Count();
+        if (TotalEmp == 0)
+            throw new DivideByZeroException(ComplianceRecordUtility.DivideByZero);
         int CompliantEmp = crs.GroupBy(c => c.EmployeeID).Count(c => c.All(c => c.Status));
         int NonCompliantEmp = TotalEmp - CompliantEmp;
         double CompliantPercent = ((1.0 * CompliantEmp) / TotalEmp) * 100;
@@ -41,8 +40,25 @@ public class ComplianceRecordService : IComplianceRecordService
     /// </summary>
     public async Task<string> UpdateComplianceRecords()
     {
-        await _complianceRecordRepo.DeleteComplianceRecords();
-        List<Certification> certifications = await _CertificationRepository.GetAllCertifications();
+        try
+        {
+            await _complianceRecordRepo.DeleteComplianceRecords();
+        }
+        catch (Exception)
+        {
+            throw new Exception(ComplianceRecordUtility.DeleteComplianceRecordsFailed);
+        }
+
+        List<Certification> certifications;
+        try
+        {
+            certifications = await _CertificationRepository.GetAllCertifications();
+        }
+        catch (Exception)
+        {
+            throw new Exception(ComplianceRecordUtility.FetchCertificationsFailed);
+        }
+
         List<ComplianceRecord> complianceRecords = new List<ComplianceRecord>();
         DateTime today = DateTime.UtcNow;
         foreach (Certification certificate in certifications)

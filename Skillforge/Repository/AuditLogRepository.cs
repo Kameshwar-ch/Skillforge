@@ -30,12 +30,29 @@ namespace Skillforge.Repository
                 query = query.Where(x => x.UserID == request.UserID.Value);
 
             if (!string.IsNullOrWhiteSpace(request.Resource))
-                query = query.Where(x => x.Resource == request.Resource);
+                query = query.Where(x => EF.Functions.Like(x.Resource, $"%{request.Resource}%"));
 
             if (!string.IsNullOrWhiteSpace(request.Action))
-                query = query.Where(x => x.Action == request.Action);
+                query = query.Where(x => EF.Functions.Like(x.Action, $"%{request.Action}%"));
 
+            // Timestamp filter: date-only OR exact timestamp
             if (request.Timestamp.HasValue)
+            {
+                var ts = request.Timestamp.Value;
+
+                if (ts.TimeOfDay == TimeSpan.Zero)
+                {
+                    // Only date provided → match all logs for that day
+                    query = query.Where(x => x.Timestamp.Date == ts.Date);
+                }
+                else
+                {
+                    // Full date + time provided → exact match
+                    query = query.Where(x => x.Timestamp == ts);
+                }
+            }
+
+            // Apply sorting
                 query = query.Where(x => x.Timestamp == request.Timestamp.Value);
 
             // Apply sorting based on enums
