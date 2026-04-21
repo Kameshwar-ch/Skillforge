@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization; // 1. Added this namespace
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
-    [Authorize(Roles = "Admin,Trainer")] 
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
@@ -20,6 +19,7 @@ namespace Skillforge.Controller
         }
 
         [HttpPost]
+         [Authorize(Roles = "Admin,Trainer")] 
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto request)
         {
             if (!ModelState.IsValid)
