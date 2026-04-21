@@ -64,7 +64,7 @@ public class ResultService : IResultService
             UserID = reviewerId,
             Action = "Submit Assessment Result",
             Resource = "Result",
-            Timestamp = DateTime.UtcNow
+            Timestamp = DateTime.Now
         };
         await _resultRepository.AddAuditLog(AuditLog);
 

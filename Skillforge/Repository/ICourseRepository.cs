@@ -10,5 +10,11 @@ namespace Skillforge.Repository
         Task<bool> TrainerExistsAsync(int trainerId);
         
         Task<int> SaveAsync();
+
+        Task<Course?> GetCourseByIdAsync(int courseId);
+        
+		Task<int> AddModuleAsync(Module module);
+        
+        Task<Course?> GetByIDAsync(int courseID);
     }
 }

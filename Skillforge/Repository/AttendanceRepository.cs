@@ -43,6 +43,7 @@ public class AttendanceRepository : IAttendanceRepository
         else
         {
             existing.Status = attendance.Status;
+             existing.AttendanceDate = attendance.AttendanceDate; 
             await _context.SaveChangesAsync();
             return (existing, false);     // already exists, updated
         }

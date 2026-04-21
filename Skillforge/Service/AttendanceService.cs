@@ -60,43 +60,28 @@ public class AttendanceService : IAttendanceService
             throw new KeyNotFoundException($"Enrollment {dto.EnrollmentID} not found.");
 
         // Check enrollment is active
-        if (!enrollment.Status)
+        if (enrollment.Status)
             throw new InvalidOperationException("Cannot mark attendance. Enrollment is not in progress.");
 
-        // Check AuditLog → did employee access this specific course on this date?
-        // UserID is int? (nullable) — check null before comparing
-        var firstAccess = await _context.AuditLogs
-            .Where(a =>
-                a.UserID       != null                            &&
-                a.UserID.Value == enrollment.EmployeeID           &&
-                a.Action       == CourseAccessedAction             &&
-                a.Resource     == $"Course/{enrollment.CourseID}" &&
-                a.Timestamp    >= dto.AttendanceDate.Date          &&
-                a.Timestamp    <  dto.AttendanceDate.Date.AddDays(1))
-            .OrderBy(a => a.Timestamp)
-            .FirstOrDefaultAsync();
-
+       
         // Present if accessed this course, Absent if not
         var attendance = new Attendance
         {
             EnrollmentID   = dto.EnrollmentID,
             AttendanceDate = dto.AttendanceDate,
-            Status         = firstAccess != null
-                             ? AttendanceStatus.Present
-                             : AttendanceStatus.Absent
+            Status         = dto.Status
         };
 
         // Upsert — insert new or update existing for same enrollment + date
         var (result, isNew) = await _attendanceRepository.UpsertAttendanceAsync(attendance);
 
-        // Log trainer action in AuditLog (IST time)
-        var ist = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+       
         _context.AuditLogs.Add(new AuditLog
         {
             UserID    = trainerID,
             Action    = AttendanceMarkedAction,
             Resource  = $"Enrollment/{dto.EnrollmentID}",
-            Timestamp = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ist)
+            Timestamp = DateTime.Now
         });
         await _context.SaveChangesAsync();
 
@@ -132,7 +117,7 @@ public class AttendanceService : IAttendanceService
             throw new InvalidOperationException("AttendanceDate is required.");
 
         // Validate date is not future
-        if (dto.AttendanceDate.Date > DateTime.UtcNow.Date)
+        if (dto.AttendanceDate.Date > DateTime.Now.Date)
             throw new InvalidOperationException($"Invalid date. {dto.AttendanceDate:yyyy-MM-dd} is a future date.");
 
         // Check course exists
@@ -149,7 +134,7 @@ public class AttendanceService : IAttendanceService
         // Get all active enrollments for this course
         var enrollments = await _context.Enrollments
             .Include(e => e.EmployeeIdNavigation)
-            .Where(e => e.CourseID == dto.CourseID && e.Status == true)
+            .Where(e => e.CourseID == dto.CourseID && e.Status == false)
             .ToListAsync();
 
         if (!enrollments.Any())
@@ -176,9 +161,12 @@ public class AttendanceService : IAttendanceService
             .Select(a => a.UserID)
             .ToHashSet();
 
-        // IST time for AuditLog
-        var ist    = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-        var istNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ist);
+        var firstAccessPerEmployee = rawLogs
+            .GroupBy(a => a.UserID)
+            .ToDictionary(
+                  g => g.Key,
+                  g => g.OrderBy(a => a.Timestamp).First().Timestamp
+                 );
 
         // Mark attendance for all enrollments in one go
         var records = new List<BulkAttendanceRecordDto>();
@@ -190,7 +178,9 @@ public class AttendanceService : IAttendanceService
             var attendance = new Attendance
             {
                 EnrollmentID   = enrollment.EnrollmentID,
-                AttendanceDate = dto.AttendanceDate,
+                AttendanceDate = isPresent
+                     ? firstAccessPerEmployee[enrollment.EmployeeID]  // AuditLog time
+                     : dto.AttendanceDate.Date,
                 Status         = isPresent
                                  ? AttendanceStatus.Present
                                  : AttendanceStatus.Absent
@@ -214,7 +204,7 @@ public class AttendanceService : IAttendanceService
             UserID    = trainerID,
             Action    = AttendanceMarkedAction,
             Resource  = $"Course/{dto.CourseID}/Bulk",
-            Timestamp = istNow
+            Timestamp = DateTime.Now
         });
         await _context.SaveChangesAsync();
 
@@ -273,7 +263,7 @@ public class AttendanceService : IAttendanceService
         // Get all active enrollments for this course
         var enrollments = await _context.Enrollments
             .Include(e => e.EmployeeIdNavigation)
-            .Where(e => e.CourseID == courseID && e.Status == true)
+            .Where(e => e.CourseID == courseID && e.Status == false)
             .ToListAsync();
 
         if (!enrollments.Any())

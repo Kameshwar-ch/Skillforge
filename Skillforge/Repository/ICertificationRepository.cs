@@ -25,10 +25,10 @@ public interface ICertificationRepository
     Task<bool> HasPassedAssessmentForCourseAsync(int employeeId, int courseId);
 
     /// <summary>
-    /// Returns true if an Active certification already exists for the
-    /// given employee and course combination.
+    /// Returns the existing Active certification for the given employee and course,
+    /// or null if none exists.
     /// </summary>
-    Task<bool> ActiveCertificationExistsAsync(int employeeId, int courseId);
+    Task<Certification?> GetActiveCertificationAsync(int employeeId, int courseId);
 
     /// <summary>Persists the certification and returns the generated CertificationID.</summary>
     Task<int> IssueCertificationAsync(Certification certification);

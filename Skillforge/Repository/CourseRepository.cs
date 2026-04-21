@@ -1,7 +1,8 @@
-using Skillforge.Data; 
+using Skillforge.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Skillforge.Domain;
+
 namespace Skillforge.Repository
 {
     public class CourseRepository : ICourseRepository
@@ -27,6 +28,24 @@ namespace Skillforge.Repository
         public async Task<int> SaveAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<Course?> GetCourseByIdAsync(int courseId)
+        {
+            return await _context.Courses.FindAsync(courseId);
+        }
+
+        public async Task<int> AddModuleAsync(Module module)
+        {
+            _context.Modules.Add(module);
+            await _context.SaveChangesAsync();
+            return module.ModuleID;
+        }
+
+        public async Task<Course?> GetByIDAsync(int courseID)
+        {
+            return await _context.Courses
+                .FirstOrDefaultAsync(c => c.CourseID == courseID);
         }
     }
 }

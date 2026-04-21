@@ -25,6 +25,7 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Competency> Competencies { get; set; }
     public virtual DbSet<Enrollment> Enrollments { get; set; }
     public virtual DbSet<Report> Reports { get; set; }
+    public virtual DbSet<ReportSchedule> ReportSchedules { get; set; }
     public virtual DbSet<SkillGap> SkillGaps { get; set; }
     public virtual DbSet<Audit> Audits { get; set; }
     public virtual DbSet<Certification> Certifications { get; set; }
@@ -56,6 +57,30 @@ public class SkillForgeDB : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ReportSchedule>(entity =>
+        {
+            entity.HasOne(rs => rs.Admin)
+                .WithMany()
+                .HasForeignKey(rs => rs.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(rs => rs.Scope)
+                .HasConversion<string>()
+                .HasColumnType("VARCHAR(20)");
+        });
+
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.Property(r => r.Scope)
+                .HasConversion<string>()
+                .HasColumnType("VARCHAR(20)");
+
+            entity.HasOne(r => r.Schedule)
+                .WithMany(rs => rs.Reports)
+                .HasForeignKey(r => r.ScheduleID)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<ComplianceRecord>()
         .HasOne(cr => cr.Certification)
         .WithMany()
