@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Service;
 using Skillforge.Dto;
+using Skillforge.Domain;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization; // 1. Added this namespace
 
 namespace Skillforge.Controller
 {
@@ -19,7 +20,8 @@ namespace Skillforge.Controller
         }
 
         [HttpPost]
-         [Authorize(Roles = "Admin,Trainer")] 
+        // Use nameof() to pull the role names directly from your existing UserRole enum
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -28,7 +30,6 @@ namespace Skillforge.Controller
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .FirstOrDefault();
-
                 return BadRequest(errorMessage);
             }
 
