@@ -39,10 +39,14 @@ builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ICompetencyRepository, CompetencyRepository>();
 builder.Services.AddScoped<ICompetencyService, CompetencyService>();
+builder.Services.AddScoped<ICompetencyRepository, CompetencyRepository>();
+builder.Services.AddScoped<ICompetencyService, CompetencyService>();
 builder.Services.AddScoped<ISkillGapService,SkillGapService>();
 builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
 builder.Services.AddScoped<IResultRepository,ResultRepository>();
 builder.Services.AddScoped<IResultService,ResultService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
@@ -52,6 +56,13 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IComplianceRecord, ComplianceRecordRepository>();
 builder.Services.AddScoped<IComplianceRecordService, ComplianceRecordService>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<IComplianceRecord, ComplianceRecordRepository>();
+builder.Services.AddScoped<IComplianceRecordService, ComplianceRecordService>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddHostedService<ReportSchedulerBackgroundService>();
 
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (secretKey == null)

@@ -7,7 +7,8 @@ namespace Skillforge.Domain;
 public enum ReportScope
 {
     Course,
-    Employee
+    Employee,
+    Department
 }
 
 [Table("Report")]
@@ -23,4 +24,9 @@ public class Report
     public string Metrics { get; set; }
     [Required]
     public DateTime GeneratedDate { get; set; }
+
+    public int? ScheduleID { get; set; }
+
+    [ForeignKey("ScheduleID")]
+    public virtual ReportSchedule? Schedule { get; set; }
 }

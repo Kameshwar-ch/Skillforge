@@ -28,5 +28,17 @@ namespace Skillforge.Repository
         {
             return await _context.SaveChangesAsync();
         }
+
+        public async Task<Course?> GetCourseByIdAsync(int courseId)
+		{
+			return await _context.Courses.FindAsync(courseId);
+		}
+
+		public async Task<int> AddModuleAsync(Module module)
+		{
+			_context.Modules.Add(module);
+			await _context.SaveChangesAsync();
+			return module.ModuleID;
+		}
     }
 }
