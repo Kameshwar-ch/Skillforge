@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Dto;
+using Skillforge.Domain;
 using Skillforge.Service;
 
 namespace Skillforge.Controllers;
@@ -32,7 +33,7 @@ public class AttendanceController : ControllerBase
     /// <returns>AttendanceID and message indicating success or update.</returns>
     // POST /api/attendance
     [HttpPost]
-    [Authorize(Roles = "Trainer")]
+    [Authorize(Roles = nameof(UserRole.Trainer))]
     public async Task<IActionResult> MarkAttendance([FromBody] MarkAttendanceDto dto)
     {
         if (!ModelState.IsValid)

@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Service;
 using Skillforge.Dto;
+using Skillforge.Domain;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Skillforge.Utility;
+using System;
 
 namespace Skillforge.Controller
 {
@@ -21,6 +23,7 @@ namespace Skillforge.Controller
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -29,7 +32,6 @@ namespace Skillforge.Controller
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .FirstOrDefault();
-
                 return BadRequest(errorMessage);
             }
 
@@ -42,19 +44,18 @@ namespace Skillforge.Controller
             {
                 return NotFound(ex.Message);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 return StatusCode(500, "An internal server error occurred. Please try again.");
             }
         }
 
         [HttpPost("{cid}/modules")]
-        [Authorize(Roles = "Trainer,Admin")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> AddModule(int cid, [FromBody] CreateModuleDto dto)
         {
             var userIdClaim = User.FindFirst("id")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             int? trainerId = null;
-
             if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
             {
                 trainerId = id;
@@ -66,7 +67,7 @@ namespace Skillforge.Controller
 
                 return Ok(new
                 {
-                    Message  = CourseMessages.ModuleCreated,
+                    Message = CourseMessages.ModuleCreated,
                     ModuleId = moduleId
                 });
             }
@@ -82,14 +83,14 @@ namespace Skillforge.Controller
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
 
         [HttpGet("{courseID}")]
-        [Authorize(Roles = "Employee,Admin,Trainer")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer) + "," + nameof(UserRole.Employee)    )]
         public async Task<IActionResult> GetCourseByID(int courseID)
         {
             try
