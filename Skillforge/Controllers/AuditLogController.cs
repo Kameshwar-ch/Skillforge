@@ -22,7 +22,7 @@ namespace Skillforge.Controller
             _auditLogService = auditLogService;
         }
         [HttpGet]
-        [Authorize(Roles = "Admin,HR")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.HR))]
         public async Task<IActionResult> GetAuditLogs([FromQuery] AuditLogFilterRequestDto request)
         {
             try
