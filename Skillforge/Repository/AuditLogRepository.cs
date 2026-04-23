@@ -8,11 +8,12 @@ namespace Skillforge.Repository
     /// <summary>
     /// EF Core implementation of IAuditLogRepository.
     /// Applies filters and sorting using enums.
+    /// Timestamp filter: date-only OR exact timestamp
+    /// Only date provided → match all logs for that day
     /// </summary>
     public class AuditLogRepository : IAuditLogRepository
     {
         private readonly SkillForgeDB _context;
-
         public AuditLogRepository(SkillForgeDB context)
         {
             _context = context;
@@ -22,7 +23,6 @@ namespace Skillforge.Repository
         {
             IQueryable<AuditLog> query = _context.AuditLogs.AsQueryable();
 
-            // Apply filters
             if (request.AuditID.HasValue)
                 query = query.Where(x => x.AuditID == request.AuditID.Value);
 
@@ -35,27 +35,20 @@ namespace Skillforge.Repository
             if (!string.IsNullOrWhiteSpace(request.Action))
                 query = query.Where(x => EF.Functions.Like(x.Action, $"%{request.Action}%"));
 
-            // Timestamp filter: date-only OR exact timestamp
             if (request.Timestamp.HasValue)
             {
                 var ts = request.Timestamp.Value;
 
                 if (ts.TimeOfDay == TimeSpan.Zero)
                 {
-                    // Only date provided → match all logs for that day
                     query = query.Where(x => x.Timestamp.Date == ts.Date);
                 }
                 else
                 {
-                    // Full date + time provided → exact match
                     query = query.Where(x => x.Timestamp == ts);
                 }
             }
 
-            // Apply sorting
-                query = query.Where(x => x.Timestamp == request.Timestamp.Value);
-
-            // Apply sorting based on enums
             query = request.SortBy switch
             {
                 SortBy.AuditID   => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.AuditID)   : query.OrderByDescending(x => x.AuditID),
@@ -63,7 +56,7 @@ namespace Skillforge.Repository
                 SortBy.Resource  => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Resource)  : query.OrderByDescending(x => x.Resource),
                 SortBy.Action    => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Action)    : query.OrderByDescending(x => x.Action),
                 SortBy.Timestamp => request.SortOrder == SortOrder.asc ? query.OrderBy(x => x.Timestamp) : query.OrderByDescending(x => x.Timestamp),
-                _ => query.OrderByDescending(x => x.Timestamp) // default fallback
+                _ => query.OrderByDescending(x => x.Timestamp)
             };
 
             return await query.ToListAsync();

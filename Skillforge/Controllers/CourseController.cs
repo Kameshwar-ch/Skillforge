@@ -97,7 +97,7 @@ namespace Skillforge.Controller
             {
                 var claim = User.FindFirst("id");
                 if (claim == null)
-                    return Unauthorized(new { message = "User ID not found in token." });
+                    return Unauthorized(new { message = "UnAuthorize User." });
 
                 int userID = int.Parse(claim.Value);
 

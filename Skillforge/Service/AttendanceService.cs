@@ -9,201 +9,118 @@ namespace Skillforge.Service;
 public class AttendanceService : IAttendanceService
 {
     private readonly IAttendanceRepository _attendanceRepository;
-    private readonly SkillForgeDB _context;
+    private readonly SkillForgeDB         _context;
 
-    // AuditLog constants
     private const string CourseAccessedAction   = "CourseAccessed";
     private const string AttendanceMarkedAction = "AttendanceMarked";
 
-    /// <summary>
-    /// Initializes AttendanceService with repository and database context.
-    /// </summary>
-    /// <param name="attendanceRepository">Repository for upsert operations.</param>
-    /// <param name="context">Database context for EF Core queries.</param>
     public AttendanceService(IAttendanceRepository attendanceRepository, SkillForgeDB context)
     {
         _attendanceRepository = attendanceRepository;
-        _context = context;
+        _context              = context;
     }
 
-    // Single Attendance 
-
     /// <summary>
-    /// Marks attendance for a single enrollment.
-    /// Validates EnrollmentID, date and enrollment status.
-    /// Checks AuditLog CourseAccessed for that employee on that date.
-    /// Present if accessed, Absent if not. Upserts attendance record.
-    /// Logs trainer action in AuditLog.
+    /// Marks attendance for single or bulk enrollments in a course.
+    /// Single → send one record with EnrollmentID and Status.
+    /// Bulk   → send multiple records, system checks AuditLog per employee.
+    /// Upserts each record and logs trainer action in AuditLog.
     /// </summary>
-    /// <param name="dto">Contains EnrollmentID and AttendanceDate.</param>
-    /// <param name="trainerID">ID of the trainer extracted from JWT.</param>
-    /// <returns>AttendanceID and success/update message.</returns>
     public async Task<AttendanceResponseDto> MarkAttendanceAsync(MarkAttendanceDto dto, int trainerID)
     {
-        // Validate EnrollmentID
-        if (dto.EnrollmentID <= 0)
-            throw new InvalidOperationException("Invalid EnrollmentID.");
-
-        // Validate AttendanceDate is not empty
-        if (dto.AttendanceDate == default)
-            throw new InvalidOperationException("AttendanceDate is required.");
-
-        // Validate date is not future
-        if (dto.AttendanceDate.Date > DateTime.UtcNow.Date)
-            throw new InvalidOperationException($"Invalid date. {dto.AttendanceDate:yyyy-MM-dd} is a future date.");
-
-        // Check enrollment exists
-        var enrollment = await _context.Enrollments
-            .FirstOrDefaultAsync(e => e.EnrollmentID == dto.EnrollmentID);
-
-        if (enrollment == null)
-            throw new KeyNotFoundException($"Enrollment {dto.EnrollmentID} not found.");
-
-        // Check enrollment is active
-        if (enrollment.Status)
-            throw new InvalidOperationException("Cannot mark attendance. Enrollment is not in progress.");
-
-       
-        // Present if accessed this course, Absent if not
-        var attendance = new Attendance
-        {
-            EnrollmentID   = dto.EnrollmentID,
-            AttendanceDate = dto.AttendanceDate,
-            Status         = dto.Status
-        };
-
-        // Upsert — insert new or update existing for same enrollment + date
-        var (result, isNew) = await _attendanceRepository.UpsertAttendanceAsync(attendance);
-
-       
-        _context.AuditLogs.Add(new AuditLog
-        {
-            UserID    = trainerID,
-            Action    = AttendanceMarkedAction,
-            Resource  = $"Enrollment/{dto.EnrollmentID}",
-            Timestamp = DateTime.Now
-        });
-        await _context.SaveChangesAsync();
-
-        return new AttendanceResponseDto
-        {
-            AttendanceID = result.AttendanceID,
-            Message      = isNew
-                ? "Attendance marked successfully."
-                : "Attendance already marked. Record updated."
-        };
-    }
-
-    // Bulk Attendance 
-
-    /// <summary>
-    /// Marks attendance for all active enrollments in a course in one shot.
-    /// Validates CourseID, date and course ownership.
-    /// Batch fetches AuditLog CourseAccessed for all employees on that date.
-    /// Present if accessed, Absent if not. Upserts all records.
-    /// Logs trainer bulk action in AuditLog.
-    /// </summary>
-    /// <param name="dto">Contains CourseID and AttendanceDate.</param>
-    /// <param name="trainerID">ID of the trainer extracted from JWT.</param>
-    /// <returns>Summary with TotalMarked, PresentCount, AbsentCount and per-employee records.</returns>
-    public async Task<BulkAttendanceResponseDto> BulkMarkAttendanceAsync(BulkMarkAttendanceDto dto, int trainerID)
-    {
-        // Validate CourseID
         if (dto.CourseID <= 0)
             throw new InvalidOperationException("Invalid CourseID.");
 
-        // Validate AttendanceDate
         if (dto.AttendanceDate == default)
             throw new InvalidOperationException("AttendanceDate is required.");
 
-        // Validate date is not future
-        if (dto.AttendanceDate.Date > DateTime.Now.Date)
+        if (dto.AttendanceDate.Date > DateTime.UtcNow.Date)
             throw new InvalidOperationException($"Invalid date. {dto.AttendanceDate:yyyy-MM-dd} is a future date.");
 
-        // Check course exists
+        if (dto.Records == null || !dto.Records.Any())
+            throw new InvalidOperationException("At least one attendance record is required.");
+
         var course = await _context.Courses
             .FirstOrDefaultAsync(c => c.CourseID == dto.CourseID);
 
         if (course == null)
             throw new KeyNotFoundException($"Course {dto.CourseID} not found.");
 
-        // Check course belongs to this trainer
         if (course.TrainerID != trainerID)
             throw new UnauthorizedAccessException("You are not authorized to mark attendance for this course.");
 
-        // Get all active enrollments for this course
-        var enrollments = await _context.Enrollments
+        // Batch fetch AuditLog CourseAccessed for all enrollments on this date
+        var enrollmentIDs    = dto.Records.Select(r => r.EnrollmentID).ToList();
+        var enrollmentList   = await _context.Enrollments
             .Include(e => e.EmployeeIdNavigation)
-            .Where(e => e.CourseID == dto.CourseID && e.Status == false)
+            .Where(e => enrollmentIDs.Contains(e.EnrollmentID))
             .ToListAsync();
 
-        if (!enrollments.Any())
-            throw new KeyNotFoundException("No active enrollments found for this course.");
-
-        // Batch fetch CourseAccessed logs for all employees on this date
-        var enrolledEmployeeIDList = enrollments
-            .Select(e => e.EmployeeID)
-            .ToList();
+        var employeeIDList   = enrollmentList.Select(e => e.EmployeeID).ToList();
 
         var rawLogs = await _context.AuditLogs
             .Where(a =>
-                a.UserID    != null                              &&
-                enrolledEmployeeIDList.Contains(a.UserID.Value)  &&
-                a.Action    == CourseAccessedAction               &&
-                a.Resource  == $"Course/{dto.CourseID}"          &&
-                a.Timestamp >= dto.AttendanceDate.Date            &&
+                a.UserID    != null                           &&
+                employeeIDList.Contains(a.UserID.Value)       &&
+                a.Action    == CourseAccessedAction            &&
+                a.Resource  == $"Course/{dto.CourseID}"       &&
+                a.Timestamp >= dto.AttendanceDate.Date         &&
                 a.Timestamp <  dto.AttendanceDate.Date.AddDays(1))
             .Select(a => new { UserID = a.UserID!.Value, a.Timestamp })
             .ToListAsync();
 
-        // Group in memory → employees who accessed course that day
-        var accessedEmployeeIDs = rawLogs
-            .Select(a => a.UserID)
-            .ToHashSet();
-
         var firstAccessPerEmployee = rawLogs
             .GroupBy(a => a.UserID)
             .ToDictionary(
-                  g => g.Key,
-                  g => g.OrderBy(a => a.Timestamp).First().Timestamp
-                 );
+                g => g.Key,
+                g => g.OrderBy(a => a.Timestamp).First().Timestamp
+            );
 
-        // Mark attendance for all enrollments in one go
-        var records = new List<BulkAttendanceRecordDto>();
+        var records = new List<AttendanceRecordResultDto>();
 
-        foreach (var enrollment in enrollments)
+        foreach (var record in dto.Records)
         {
-            var isPresent = accessedEmployeeIDs.Contains(enrollment.EmployeeID);
+            if (record.EnrollmentID <= 0)
+                throw new InvalidOperationException("Invalid EnrollmentID.");
+
+            var enrollment = enrollmentList
+                .FirstOrDefault(e => e.EnrollmentID == record.EnrollmentID);
+
+            if (enrollment == null)
+                throw new KeyNotFoundException($"Enrollment {record.EnrollmentID} not found.");
+
+            if (enrollment.CourseID != dto.CourseID)
+                throw new InvalidOperationException($"Enrollment {record.EnrollmentID} does not belong to Course {dto.CourseID}.");
+
+            if (enrollment.Status)
+                throw new InvalidOperationException($"Cannot mark attendance. Enrollment {record.EnrollmentID} is not in progress.");
+
+            var isAccessed = firstAccessPerEmployee.ContainsKey(enrollment.EmployeeID);
 
             var attendance = new Attendance
             {
-                EnrollmentID   = enrollment.EnrollmentID,
-                AttendanceDate = isPresent
-                     ? firstAccessPerEmployee[enrollment.EmployeeID]  // AuditLog time
-                     : dto.AttendanceDate.Date,
-                Status         = isPresent
-                                 ? AttendanceStatus.Present
-                                 : AttendanceStatus.Absent
+                EnrollmentID   = record.EnrollmentID,
+                AttendanceDate = isAccessed
+                                 ? firstAccessPerEmployee[enrollment.EmployeeID]
+                                 : dto.AttendanceDate.Date,
+                Status         = record.Status
             };
 
-            // Upsert each enrollment
             await _attendanceRepository.UpsertAttendanceAsync(attendance);
 
-            records.Add(new BulkAttendanceRecordDto
+            records.Add(new AttendanceRecordResultDto
             {
                 EnrollmentID = enrollment.EnrollmentID,
-                EmployeeID   = enrollment.EmployeeID,
                 EmployeeName = enrollment.EmployeeIdNavigation.Name,
-                Status       = isPresent ? "Present" : "Absent"
+                Status       = record.Status.ToString()
             });
         }
 
-        // Log trainer bulk action in AuditLog
         _context.AuditLogs.Add(new AuditLog
         {
             UserID    = trainerID,
             Action    = AttendanceMarkedAction,
-            Resource  = $"Course/{dto.CourseID}/Bulk",
+            Resource  = $"Course/{dto.CourseID}",
             Timestamp = DateTime.Now
         });
         await _context.SaveChangesAsync();
@@ -211,7 +128,7 @@ public class AttendanceService : IAttendanceService
         var presentCount = records.Count(r => r.Status == "Present");
         var absentCount  = records.Count(r => r.Status == "Absent");
 
-        return new BulkAttendanceResponseDto
+        return new AttendanceResponseDto
         {
             CourseID       = dto.CourseID,
             AttendanceDate = dto.AttendanceDate,
@@ -219,48 +136,33 @@ public class AttendanceService : IAttendanceService
             PresentCount   = presentCount,
             AbsentCount    = absentCount,
             Records        = records,
-            Message        = $"Bulk attendance marked successfully. Present: {presentCount}, Absent: {absentCount}."
+            Message        = "Attendance marked successfully."
         };
     }
 
-    //GET Course Attendance
-
     /// <summary>
-    /// Retrieves attendance preview for all active enrollments in a course on a specific date.
-    /// Batch fetches AuditLog CourseAccessed for all enrolled employees.
-    /// Returns CourseStatus (Accessed/Not Accessed) and LoginDate per employee.
-    /// LoginDate = exact AuditLog timestamp if accessed, date with 00:00:00 if not.
+    /// Returns all active enrollments with CourseStatus and LoginDate for a course on a given date.
     /// </summary>
-    /// <param name="courseID">ID of the course.</param>
-    /// <param name="date">Date to retrieve attendance for.</param>
-    /// <param name="trainerID">ID of the trainer extracted from JWT.</param>
-    /// <returns>List of employees with CourseStatus and LoginDate.</returns>
     public async Task<GetCourseAttendanceResponseDto> GetCourseAttendanceAsync(int courseID, DateTime date, int trainerID)
     {
-        // Validate CourseID
         if (courseID <= 0)
             throw new InvalidOperationException("Invalid CourseID.");
 
-        // Validate date not missing
         if (date == default)
             throw new InvalidOperationException("Date is required.");
 
-        // Validate date is not future
         if (date.Date > DateTime.UtcNow.Date)
             throw new InvalidOperationException($"Invalid date. {date:yyyy-MM-dd} is a future date.");
 
-        // Check course exists
         var course = await _context.Courses
             .FirstOrDefaultAsync(c => c.CourseID == courseID);
 
         if (course == null)
             throw new KeyNotFoundException($"Course {courseID} not found.");
 
-        // Check course belongs to this trainer
         if (course.TrainerID != trainerID)
             throw new UnauthorizedAccessException("You are not authorized to access this course.");
 
-        // Get all active enrollments for this course
         var enrollments = await _context.Enrollments
             .Include(e => e.EmployeeIdNavigation)
             .Where(e => e.CourseID == courseID && e.Status == false)
@@ -269,13 +171,10 @@ public class AttendanceService : IAttendanceService
         if (!enrollments.Any())
             throw new KeyNotFoundException("No active enrollments found for this course.");
 
-        // Use List — EF Core translates List.Contains() to SQL IN clause 
         var enrolledEmployeeIDList = enrollments
             .Select(e => e.EmployeeID)
             .ToList();
 
-        // Batch fetch all CourseAccessed logs for this course on this date
-        // UserID is int? (nullable) — check null before comparing
         var rawLogs = await _context.AuditLogs
             .Where(a =>
                 a.UserID    != null                              &&
@@ -287,7 +186,6 @@ public class AttendanceService : IAttendanceService
             .Select(a => new { UserID = a.UserID!.Value, a.Timestamp })
             .ToListAsync();
 
-        // Group in memory → first access time per employee that day
         var firstAccessPerEmployee = rawLogs
             .GroupBy(a => a.UserID)
             .ToDictionary(
@@ -295,13 +193,9 @@ public class AttendanceService : IAttendanceService
                 g => g.OrderBy(a => a.Timestamp).First().Timestamp
             );
 
-        // Build records
-        // Accessed     → LoginDate = exact AuditLog timestamp e.g. 2026-04-20T09:46:58
-        // Not Accessed → LoginDate = date with 00:00:00      e.g. 2026-04-20T00:00:00
         var records = enrollments.Select(e => new CourseAttendanceDto
         {
             EnrollmentID = e.EnrollmentID,
-            EmployeeID   = e.EmployeeID,
             EmployeeName = e.EmployeeIdNavigation.Name,
             CourseStatus = firstAccessPerEmployee.ContainsKey(e.EmployeeID)
                            ? "Accessed" : "Not Accessed",
