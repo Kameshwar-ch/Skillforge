@@ -84,5 +84,38 @@ namespace Skillforge.Controller
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
+
+        [HttpGet("{courseID}")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer) + "," + nameof(UserRole.Employee)    )]
+        public async Task<IActionResult> GetCourseByID(int courseID)
+        {
+            try
+            {
+                var claim = User.FindFirst("id");
+                if (claim == null)
+                    return Unauthorized(new { message = "UnAuthorize User." });
+
+                int userID = int.Parse(claim.Value);
+
+                var result = await _courseService.GetCourseByIDAsync(courseID, userID);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, inner = ex.InnerException?.Message });
+            }
+        }
     }
 }
