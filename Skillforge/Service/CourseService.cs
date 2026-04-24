@@ -126,8 +126,31 @@ namespace Skillforge.Service
             {
                 CourseID = course.CourseID,
                 Title    = course.Title,
-                Status   = course.Status ? "Active" : "Inactive"
+                Status   = course.Status
             };
         }
+		public async Task<PagedResultDto<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request)
+		{
+			var pagedCourses = await _courseRepository.GetCoursesFilteredAsync(request);
+
+			var courseDtos = pagedCourses.Items.Select(course => new CourseResponseDto
+			{
+				CourseID = course.CourseID,
+				Title = course.Title,
+				Description = course.Description,
+				TrainerID = course.TrainerID,
+				Duration = course.Duration,
+				Status = course.Status
+			}).ToList();
+
+			return new PagedResultDto<CourseResponseDto>
+			{
+				Items = courseDtos,
+				TotalRecords = pagedCourses.TotalRecords,
+				PageNumber = pagedCourses.PageNumber,
+				PageSize = pagedCourses.PageSize,
+				TotalPages = pagedCourses.TotalPages
+			};
+		}
     }
 }

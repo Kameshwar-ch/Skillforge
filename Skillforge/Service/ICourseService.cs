@@ -8,6 +8,7 @@ namespace Skillforge.Service
 		Task<int> CreateModuleAsync(int courseId, CreateModuleDto dto, int? trainerId);
         Task CreateCourseAsync(CourseRequestDto courseRequest);
 	    Task<CourseResponseDto> GetCourseByIDAsync(int courseID, int userID);
+		public Task<PagedResultDto<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request);
 	}
 }
 
