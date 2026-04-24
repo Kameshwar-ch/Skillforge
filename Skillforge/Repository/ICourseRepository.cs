@@ -14,5 +14,7 @@ namespace Skillforge.Repository
         Task<Course?> GetCourseByIdAsync(int courseId);
         
 		Task<int> AddModuleAsync(Module module);
+        
+        Task<Course?> GetByIDAsync(int courseID);
     }
 }

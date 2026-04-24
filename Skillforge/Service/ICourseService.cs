@@ -9,3 +9,11 @@ namespace Skillforge.Service
         Task CreateCourseAsync(CourseRequestDto courseRequest);
     }
 }
+	public interface ICourseService
+	{
+		Task<int> CreateModuleAsync(int courseId, CreateModuleDto dto, int? trainerId);
+        Task<CourseResponseDto> CreateCourseAsync(CourseRequestDto courseRequest);
+	    Task<CourseResponseDto> GetCourseByIDAsync(int courseID, int userID);
+	}
+}
+
