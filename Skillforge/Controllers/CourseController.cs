@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Service;
 using Skillforge.Dto;
 using Skillforge.Domain;
 using Microsoft.AspNetCore.Authorization;
+using System;
+using Skillforge.Utility;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Skillforge.Utility;
-using System;
 
 namespace Skillforge.Controller
 {
@@ -23,6 +22,7 @@ namespace Skillforge.Controller
         }
 
         [HttpPost]
+        // Requirement: Auth read from Enum (No hardcoding)
         [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto request)
         {
@@ -32,13 +32,16 @@ namespace Skillforge.Controller
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .FirstOrDefault();
+                
                 return BadRequest(errorMessage);
             }
 
             try
             {
-                var result = await _courseService.CreateCourseAsync(request);
-                return CreatedAtAction(nameof(CreateCourse), new { id = result.CourseID }, result);
+                await _courseService.CreateCourseAsync(request);
+                
+                // Requirement: Return only a success string
+                return Ok("Course successfully added."); 
             }
             catch (KeyNotFoundException ex)
             {
@@ -46,10 +49,9 @@ namespace Skillforge.Controller
             }
             catch (Exception)
             {
-                return StatusCode(500, "An internal server error occurred. Please try again.");
+                return StatusCode(500, "An internal server error occurred.");
             }
         }
-
         [HttpPost("{cid}/modules")]
         [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> AddModule(int cid, [FromBody] CreateModuleDto dto)
