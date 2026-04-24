@@ -1,17 +1,26 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Runtime.Serialization;
 namespace Skillforge.Domain;
 
 public enum UserRole
-{
-    Employee,
-    Trainer,
-    Manager,
-    HR,
-    Admin
-};
+    {
+        [EnumMember(Value = "Employee")]
+        Employee,
+
+        [EnumMember(Value = "Trainer")]
+        Trainer,
+
+        [EnumMember(Value = "Manager")]
+        Manager,
+
+        [EnumMember(Value = "HR")]
+        HR,
+
+        [EnumMember(Value = "Admin")]
+        Admin
+    }
 
 [Table("User")]
 public class User
