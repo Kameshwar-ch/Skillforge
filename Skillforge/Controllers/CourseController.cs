@@ -123,5 +123,11 @@ namespace Skillforge.Controller
                 return StatusCode(500, new { message = ex.Message, inner = ex.InnerException?.Message });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetCourses([FromQuery] CourseFilterRequestDto request)
+        {
+            var result = await _courseService.GetCoursesAsync(request);
+            return Ok(result);
+        }
     }
 }

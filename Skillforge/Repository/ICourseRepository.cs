@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Skillforge.Domain;
+using Skillforge.Dto;
 namespace Skillforge.Repository
 {
     public interface ICourseRepository
@@ -16,5 +17,7 @@ namespace Skillforge.Repository
 		Task<int> AddModuleAsync(Module module);
         
         Task<Course?> GetByIDAsync(int courseID);
+
+         public Task<PagedResultDto<CourseResponseDto>> GetCoursesFilteredAsync(CourseFilterRequestDto request);
     }
 }
