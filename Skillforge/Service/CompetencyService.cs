@@ -17,8 +17,8 @@ namespace Skillforge.Service
 			var employees = await _repository.GetEmployeesWithSkillsAsync();
 
 			return employees
-				.Where(u => string.IsNullOrWhiteSpace(searchDto.EmployeeName) ||
-							u.Name.Contains(searchDto.EmployeeName, StringComparison.OrdinalIgnoreCase))
+				.Where(u => (searchDto.EmployeeId == null || u.UserID == searchDto.EmployeeId) && (string.IsNullOrWhiteSpace(searchDto.EmployeeName) ||
+							u.Name.Contains(searchDto.EmployeeName, StringComparison.OrdinalIgnoreCase)))
 				.Select(u => new CompetencyMatrixDto
 				{
 					EmployeeId = u.UserID,

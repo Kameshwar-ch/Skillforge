@@ -211,7 +211,12 @@ public class SkillForgeDB : DbContext
         });
 
         modelBuilder.Entity<Attendance>(entity =>
-        {
+        {    
+            entity.Property(a => a.Status)
+                .HasConversion<string>()       // Enum → string
+                .HasColumnType("VARCHAR(20)")  // DB column type
+                .IsRequired();
+                
             entity.HasOne(a => a.EnrollmentIdNavigation)
                 .WithMany(e => e.Attendances)
                 .HasForeignKey(a => a.EnrollmentID)

@@ -1,10 +1,14 @@
-using Skillforge.Dto; 
+using Skillforge.Dto;
 using System.Threading.Tasks;
 
 namespace Skillforge.Service
 {
-    public interface ICourseService
-    {
-        Task<CourseResponseDto> CreateCourseAsync(CourseRequestDto courseRequest);
-    }
+	public interface ICourseService
+	{
+		Task<int> CreateModuleAsync(int courseId, CreateModuleDto dto, int? trainerId);
+        Task CreateCourseAsync(CourseRequestDto courseRequest);
+	    Task<CourseResponseDto> GetCourseByIDAsync(int courseID, int userID);
+		public Task<PagedResultDto<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request);
+	}
 }
+
