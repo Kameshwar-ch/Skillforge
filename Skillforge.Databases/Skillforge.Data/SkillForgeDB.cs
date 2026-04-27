@@ -31,6 +31,7 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Certification> Certifications { get; set; }
     public virtual DbSet<ComplianceRecord> ComplianceRecords { get; set; }
     public virtual DbSet<Assessment> Assessments { get; set; }
+    public virtual DbSet<Notification> Notifications { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -220,6 +221,21 @@ public class SkillForgeDB : DbContext
                 .WithMany(e => e.Attendances)
                 .HasForeignKey(a => a.EnrollmentID)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(n => n.Course)
+                .WithMany()
+                .HasForeignKey(n => n.CourseID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.ToTable(t => t.HasCheckConstraint("CK_Notification_Status", "[Status] IN ('Unread', 'Read')"));
         });
 
         modelBuilder.Entity<Certification>(entity =>
