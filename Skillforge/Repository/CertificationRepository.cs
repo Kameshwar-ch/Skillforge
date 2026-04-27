@@ -45,4 +45,31 @@ public class CertificationRepository : ICertificationRepository
         await _context.SaveChangesAsync();
         return certification.CertificationID;
     }
+
+    public async Task<List<Certification>> GetExpiringCertificationsAsync(int daysAhead)
+    {
+        var targetDate = DateTime.UtcNow.Date.AddDays(daysAhead);
+        var nextDay    = targetDate.AddDays(1);
+
+        return await _context.Certifications
+            .Include(c => c.Course)
+            .Where(c => c.Status == "Active"
+                     && c.ExpiryDate >= targetDate
+                     && c.ExpiryDate <  nextDay)
+            .ToListAsync();
+    }
+
+    public async Task<List<Certification>> GetExpiredActiveCertificationsAsync()
+        => await _context.Certifications
+            .Include(c => c.Course)
+            .Where(c => c.Status == "Active" && c.ExpiryDate < DateTime.UtcNow)
+            .ToListAsync();
+
+    public async Task UpdateStatusAsync(int certificationId, string status)
+    {
+        var cert = await _context.Certifications.FindAsync(certificationId);
+        if (cert is null) return;
+        cert.Status = status;
+        await _context.SaveChangesAsync();
+    }
 }
