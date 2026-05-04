@@ -32,7 +32,7 @@ public class ReportRepository : IReportRepository
 
     public async Task<IEnumerable<ReportSchedule>> GetDueSchedulesAsync()
     {
-        var now = NowIst();
+        var now = DateTime.UtcNow;
         return await _context.ReportSchedules
             .Where(s => s.IsActive && s.NextRun <= now)
             .ToListAsync();
