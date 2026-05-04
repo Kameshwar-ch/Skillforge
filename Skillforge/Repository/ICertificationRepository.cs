@@ -32,4 +32,22 @@ public interface ICertificationRepository
 
     /// <summary>Persists the certification and returns the generated CertificationID.</summary>
     Task<int> IssueCertificationAsync(Certification certification);
+
+    /// <summary>
+    /// Returns Active certifications whose ExpiryDate falls within the next
+    /// <paramref name="daysAhead"/> days (UTC, date-only comparison).
+    /// Includes the Course navigation property for the course title.
+    /// </summary>
+    Task<List<Certification>> GetExpiringCertificationsAsync(int daysAhead);
+
+    /// <summary>
+    /// Returns certifications whose ExpiryDate has already passed but whose
+    /// Status is still 'Active' — used by the background service to flip them
+    /// to 'Expired' and notify the employee.
+    /// Includes the Course navigation property for the course title.
+    /// </summary>
+    Task<List<Certification>> GetExpiredActiveCertificationsAsync();
+
+    /// <summary>Updates the Status field of a single certification.</summary>
+    Task UpdateStatusAsync(int certificationId, string status);
 }
