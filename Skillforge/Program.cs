@@ -11,6 +11,9 @@ using Microsoft.OpenApi;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // this is for fetching the data from the env file.
@@ -63,16 +66,14 @@ builder.Services.AddScoped<IComplianceRecord, ComplianceRecordRepository>();
 builder.Services.AddScoped<IComplianceRecordService, ComplianceRecordService>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddSingleton<ReportPdfGenerator>();
 builder.Services.AddHostedService<ReportSchedulerBackgroundService>();
 builder.Services.AddHostedService<NotificationSchedulerBackgroundService>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 
-var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-if (secretKey is null)
-{
-    throw new Exception("Secret key is NUll");
-}
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? throw new Exception("Secret key is missing from .env file!");
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
