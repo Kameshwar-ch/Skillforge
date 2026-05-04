@@ -20,6 +20,12 @@ namespace Skillforge.Service
 		{
 			try
 			{
+				if (string.IsNullOrWhiteSpace(dto.Title))
+					throw new ArgumentException(CourseMessages.InvalidTitle);
+
+				if (string.IsNullOrWhiteSpace(dto.ContentURI))
+					throw new ArgumentException(CourseMessages.InvalidURI);
+
 				if (dto.Duration <= 0)
 					throw new ArgumentException(CourseMessages.InvalidDuration);
 
