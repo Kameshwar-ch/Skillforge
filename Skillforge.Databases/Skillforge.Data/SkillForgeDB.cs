@@ -25,11 +25,13 @@ public class SkillForgeDB : DbContext
     public virtual DbSet<Competency> Competencies { get; set; }
     public virtual DbSet<Enrollment> Enrollments { get; set; }
     public virtual DbSet<Report> Reports { get; set; }
+    public virtual DbSet<ReportSchedule> ReportSchedules { get; set; }
     public virtual DbSet<SkillGap> SkillGaps { get; set; }
     public virtual DbSet<Audit> Audits { get; set; }
     public virtual DbSet<Certification> Certifications { get; set; }
     public virtual DbSet<ComplianceRecord> ComplianceRecords { get; set; }
     public virtual DbSet<Assessment> Assessments { get; set; }
+    public virtual DbSet<Notification> Notifications { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -56,6 +58,30 @@ public class SkillForgeDB : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ReportSchedule>(entity =>
+        {
+            entity.HasOne(rs => rs.Admin)
+                .WithMany()
+                .HasForeignKey(rs => rs.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(rs => rs.Scope)
+                .HasConversion<string>()
+                .HasColumnType("VARCHAR(20)");
+        });
+
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.Property(r => r.Scope)
+                .HasConversion<string>()
+                .HasColumnType("VARCHAR(20)");
+
+            entity.HasOne(r => r.Schedule)
+                .WithMany(rs => rs.Reports)
+                .HasForeignKey(r => r.ScheduleID)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<ComplianceRecord>()
         .HasOne(cr => cr.Certification)
         .WithMany()
@@ -185,11 +211,31 @@ public class SkillForgeDB : DbContext
         });
 
         modelBuilder.Entity<Attendance>(entity =>
-        {
+        {    
+            entity.Property(a => a.Status)
+                .HasConversion<string>()       // Enum → string
+                .HasColumnType("VARCHAR(20)")  // DB column type
+                .IsRequired();
+                
             entity.HasOne(a => a.EnrollmentIdNavigation)
                 .WithMany(e => e.Attendances)
                 .HasForeignKey(a => a.EnrollmentID)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(n => n.Course)
+                .WithMany()
+                .HasForeignKey(n => n.CourseID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.ToTable(t => t.HasCheckConstraint("CK_Notification_Status", "[Status] IN ('Unread', 'Read')"));
         });
 
         modelBuilder.Entity<Certification>(entity =>

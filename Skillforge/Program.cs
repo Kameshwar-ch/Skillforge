@@ -10,6 +10,9 @@ using System.Text.Json.Serialization;
 using Microsoft.OpenApi;
 
 
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // this is for fetching the data from the env file.
@@ -38,23 +41,38 @@ builder.Services.AddScoped<IJWTProviderService, JWTProviderService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ICompetencyRepository, CompetencyRepository>();
 builder.Services.AddScoped<ICompetencyService, CompetencyService>();
+builder.Services.AddScoped<ICompetencyRepository, CompetencyRepository>();
+builder.Services.AddScoped<ICompetencyService, CompetencyService>();
 builder.Services.AddScoped<ISkillGapService,SkillGapService>();
 builder.Services.AddScoped<ISkillGapRepository,SkillGapRepository>();
 builder.Services.AddScoped<IResultRepository,ResultRepository>();
 builder.Services.AddScoped<IResultService,ResultService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICertificationService, CertificationService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IComplianceRecord, ComplianceRecordRepository>();
 builder.Services.AddScoped<IComplianceRecordService, ComplianceRecordService>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<IComplianceRecord, ComplianceRecordRepository>();
+builder.Services.AddScoped<IComplianceRecordService, ComplianceRecordService>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddSingleton<ReportPdfGenerator>();
+builder.Services.AddHostedService<ReportSchedulerBackgroundService>();
+builder.Services.AddHostedService<NotificationSchedulerBackgroundService>();
+builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 
-var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-if (secretKey == null)
-{
-    throw new Exception("Secret key is NUll");
-}
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? throw new Exception("Secret key is missing from .env file!");
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Skillforge.Constants;
 using Skillforge.Domain;
 using Skillforge.Dto;
 using Skillforge.Service;
@@ -40,6 +41,7 @@ public class CertificationController : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.HR)}")]
     [ProducesResponseType(typeof(CertificationResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> IssueCertification([FromBody] IssueCertificationRequestDto request)
     {
@@ -54,7 +56,12 @@ public class CertificationController : ControllerBase
             var (success, errorMessage, certification) = await _certificationService.IssueCertificationAsync(request);
 
             if (!success)
+            {
+                if (errorMessage == CertificationErrorMessages.ActiveCertificationExists)
+                    return Conflict(new { message = errorMessage, certification });
+
                 return BadRequest(new { message = errorMessage });
+            }
 
             await _auditService.LogAsync(issuedById, "CertificationIssued", $"Certification/{certification!.CertificationId}");
 
