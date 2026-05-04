@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Skillforge.Service;
 using Skillforge.Utility;
+using Microsoft.AspNetCore.Authorization; // 1. Added this namespace
 
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
+    [Authorize(Roles = "Admin,Trainer")] 
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
@@ -24,20 +26,19 @@ namespace Skillforge.Controller
         [HttpPost]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto request)
         {
-           
             if (!ModelState.IsValid)
             {
                 var errorMessage = ModelState.Values
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .FirstOrDefault();
+
                 return BadRequest(errorMessage);
             }
 
             try
             {
                 var result = await _courseService.CreateCourseAsync(request);
-                
                 return CreatedAtAction(nameof(CreateCourse), new { id = result.CourseID }, result);
             }
             catch (KeyNotFoundException ex)
