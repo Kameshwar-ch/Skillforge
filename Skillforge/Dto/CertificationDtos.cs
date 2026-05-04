@@ -22,6 +22,8 @@ public class CertificationResponseDto
     public int CertificationId { get; set; }
     public int EmployeeId { get; set; }
     public int CourseId { get; set; }
+    public string CourseName { get; set; } = string.Empty;
+    public string CourseDescription { get; set; } = string.Empty;
     public DateTime IssueDate { get; set; }
     public DateTime ExpiryDate { get; set; }
     public string Status { get; set; } = string.Empty;
