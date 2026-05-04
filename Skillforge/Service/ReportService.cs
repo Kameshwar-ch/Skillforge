@@ -18,16 +18,19 @@ public class ReportService : IReportService
 
     private readonly IReportRepository _reportRepository;
     private readonly INotificationService _notificationService;
+    private readonly ReportPdfGenerator _pdfGenerator;
     private readonly SkillForgeDB _context;
 
     public ReportService(
         IReportRepository reportRepository,
         INotificationService notificationService,
+        ReportPdfGenerator pdfGenerator,
         SkillForgeDB context)
     {
-        _reportRepository = reportRepository;
+        _reportRepository    = reportRepository;
         _notificationService = notificationService;
-        _context = context;
+        _pdfGenerator        = pdfGenerator;
+        _context             = context;
     }
 
     public async Task<ReportScheduleResponseDto> CreateScheduleAsync(CreateReportScheduleDto dto, int adminId)
@@ -62,18 +65,16 @@ public class ReportService : IReportService
 
         var report = new Report
         {
-            Scope = schedule.Scope,
-            Metrics = JsonSerializer.Serialize(metrics),
+            Scope         = schedule.Scope,
+            Metrics       = JsonSerializer.Serialize(metrics),
             GeneratedDate = NowIst(),
-            ScheduleID = schedule.ScheduleID
+            ScheduleID    = schedule.ScheduleID
         };
 
         await _reportRepository.SaveReportAsync(report);
 
         await _notificationService.NotifyReportGeneratedAsync(
-            schedule.CreatedBy,
-            report.ReportID,
-            schedule.Scope.ToString());
+            schedule.CreatedBy, report.ReportID, schedule.Scope.ToString());
 
         var cron = CronExpression.Parse(schedule.CronExpression);
         schedule.LastRun = NowIst();
@@ -82,28 +83,80 @@ public class ReportService : IReportService
         await _reportRepository.UpdateScheduleAsync(schedule);
     }
 
-    private async Task<object> BuildMetricsAsync(ReportScope scope)
+    public async Task<(byte[] PdfBytes, int ReportId)> GenerateReportAsync(
+        GenerateReportRequestDto dto, int requestedById)
     {
-        var totalEnrollments = await _context.Enrollments.CountAsync();
-        var activeCertifications = await _context.Certifications
-            .CountAsync(c => c.Status == "Active");
-        var totalCompliance = await _context.ComplianceRecords.CountAsync();
-        var compliantCount = await _context.ComplianceRecords
-            .CountAsync(c => c.Status == true);
-        var complianceRate = totalCompliance > 0
+        var metrics = await BuildMetricsAsync(dto.Scope);
+
+        var report = new Report
+        {
+            Scope         = dto.Scope,
+            Metrics       = JsonSerializer.Serialize(metrics),
+            GeneratedDate = metrics.GeneratedAt,
+            ScheduleID    = null   // ad-hoc — not tied to a schedule
+        };
+
+        await _reportRepository.SaveReportAsync(report);
+
+        await _notificationService.NotifyReportGeneratedAsync(
+            requestedById, report.ReportID, dto.Scope.ToString());
+
+        var pdfBytes = _pdfGenerator.Generate(metrics);
+
+        return (pdfBytes, report.ReportID);
+    }
+
+    // ── Metrics builder (scope-aware) ────────────────────────────────────────────
+
+    private async Task<ReportMetrics> BuildMetricsAsync(ReportScope scope)
+    {
+        // Shared aggregates — run all in parallel for performance on large data sets
+        var totalEnrollments     = await _context.Enrollments.CountAsync();
+        var activeCertifications = await _context.Certifications.CountAsync(c => c.Status == "Active");
+        var totalCompliance      = await _context.ComplianceRecords.CountAsync();
+        var compliantCount       = await _context.ComplianceRecords.CountAsync(c => c.Status == true);
+        var complianceRate       = totalCompliance > 0
             ? Math.Round((double)compliantCount / totalCompliance * 100, 2)
             : 0;
         var totalSkillGaps = await _context.SkillGaps.CountAsync();
 
-        return new
+        var metrics = new ReportMetrics
         {
-            Scope = scope.ToString(),
-            TotalEnrollments = totalEnrollments,
+            Scope                = scope.ToString(),
+            TotalEnrollments     = totalEnrollments,
             ActiveCertifications = activeCertifications,
-            ComplianceRate = complianceRate,
-            TotalSkillGaps = totalSkillGaps,
-            GeneratedAt = NowIst()
+            ComplianceRate       = complianceRate,
+            TotalSkillGaps       = totalSkillGaps,
+            GeneratedAt          = NowIst()
         };
+
+        // Scope-specific extras
+        switch (scope)
+        {
+            case ReportScope.Course:
+                metrics.TotalCourses  = await _context.Courses.CountAsync();
+                metrics.ActiveCourses = await _context.Courses.CountAsync(c => c.Status == true);
+                break;
+
+            case ReportScope.Employee:
+                metrics.TotalEmployees       = await _context.Users.CountAsync(u => u.Role == UserRole.Employee && u.Status == true);
+                metrics.CertifiedEmployees   = await _context.Certifications.Select(c => c.EmployeeID).Distinct().CountAsync();
+                metrics.CompliantEmployees   = compliantCount;
+                metrics.NonCompliantEmployees = totalCompliance - compliantCount;
+                break;
+
+            case ReportScope.Department:
+                metrics.TotalEmployees        = await _context.Users.CountAsync(u => u.Role == UserRole.Employee && u.Status == true);
+                metrics.TotalManagers         = await _context.Users.CountAsync(u => u.Role == UserRole.Manager  && u.Status == true);
+                metrics.TotalTrainers         = await _context.Users.CountAsync(u => u.Role == UserRole.Trainer  && u.Status == true);
+                metrics.TotalHRs              = await _context.Users.CountAsync(u => u.Role == UserRole.HR       && u.Status == true);
+                metrics.CertifiedEmployees    = await _context.Certifications.Select(c => c.EmployeeID).Distinct().CountAsync();
+                metrics.CompliantEmployees    = compliantCount;
+                metrics.NonCompliantEmployees = totalCompliance - compliantCount;
+                break;
+        }
+
+        return metrics;
     }
 
     private static ReportScheduleResponseDto MapToDto(ReportSchedule schedule) => new()
