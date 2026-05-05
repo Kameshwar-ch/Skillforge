@@ -4,6 +4,7 @@ namespace Skillforge.Service;
 
 using Microsoft.EntityFrameworkCore;
 using Skillforge.Domain;
+using Skillforge.Dto;
 using Skillforge.Repository;
 using Skillforge.Utility;
 
@@ -78,5 +79,81 @@ public class EnrollmentService : IEnrollmentService
         await enrollmentRepository.AddAuditLog(AuditLog);
 
         return enrollment.EnrollmentID;
+    }
+
+    // Bulk enrollment: Manager assigns a course to multiple employees at once
+    // Supports partial success - valid employees are enrolled, invalid ones are skipped with reason
+    // Audits the entire bulk operation as a single ManagerAssign action
+    public async Task<BulkEnrollmentResponseDto> BulkEnrollAsync(BulkEnrollmentRequestDto request, int managerId)
+    {
+        var response = new BulkEnrollmentResponseDto
+        {
+            TotalRequested = request.EmployeeIds.Count
+        };
+
+        // 1. Validate course exists
+        Course course = await enrollmentRepository.GetByIdAsync(request.CourseId);
+
+        if (course == null)
+        {
+            throw new KeyNotFoundException(EnrollmentMessages.notfound);
+        }
+
+        // 2. Validate course is open for enrollment
+        if (course.Status == false)
+        {
+            throw new BadHttpRequestException(EnrollmentMessages.closed);
+        }
+
+        // 3. Process each employee - partial success: skip failures, continue with valid ones
+        foreach (var employeeId in request.EmployeeIds)
+        {
+            var resultItem = new EnrollmentResultItem { EmployeeId = employeeId };
+
+            // Check if employee exists and is active
+            var employeeExists = await enrollmentRepository.EmployeeExistsAsync(employeeId);
+            if (!employeeExists)
+            {
+                resultItem.Status = "Failed";
+                resultItem.Reason = EnrollmentMessages.EmployeeNotFound;
+                response.Failed++;
+                response.Results.Add(resultItem);
+                continue;
+            }
+
+            // Check for duplicate enrollment
+            var alreadyEnrolled = await enrollmentRepository.ExistsAsync(request.CourseId, employeeId);
+            if (alreadyEnrolled)
+            {
+                resultItem.Status = "Failed";
+                resultItem.Reason = EnrollmentMessages.enrolled;
+                response.Failed++;
+                response.Results.Add(resultItem);
+                continue;
+            }
+
+            // Create enrollment for valid employee
+            var enrollment = new Enrollment
+            {
+                CourseID = request.CourseId,
+                EmployeeID = employeeId,
+                EnrollmentDate = DateTime.UtcNow
+            };
+            await enrollmentRepository.AddAsync(enrollment);
+
+            resultItem.EnrollmentId = enrollment.EnrollmentID;
+            resultItem.Status = "Success";
+            response.Succeeded++;
+            response.Results.Add(resultItem);
+        }
+
+        // 4. Audit: Log the ManagerAssign action with bulk operation summary
+        await auditService.LogAsync(
+            managerId,
+            $"ManagerAssign - BulkEnroll CourseId:{request.CourseId} Total:{response.TotalRequested} Succeeded:{response.Succeeded} Failed:{response.Failed}",
+            "Enrollment"
+        );
+
+        return response;
     }
 }
