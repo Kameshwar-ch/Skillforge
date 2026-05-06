@@ -8,8 +8,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi;
-using DotNetEnv;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 using QuestPDF.Infrastructure;
 QuestPDF.Settings.License = LicenseType.Community;

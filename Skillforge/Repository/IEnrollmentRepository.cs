@@ -9,4 +9,5 @@ public interface IEnrollmentRepository
     Task AddAuditLog(AuditLog auditLog);
     Task<bool> ExistsAsync(int courseId, int employeeId);
     Task AddAsync(Enrollment enrollment);
+    Task<bool> EmployeeExistsAsync(int employeeId);
 }

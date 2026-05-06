@@ -38,4 +38,10 @@ public class EnrollmentRepository : IEnrollmentRepository
     {
         return await context.Courses.FindAsync(courseId);
     }
+
+    // Checks if an employee exists and is active - used by bulk enrollment to validate each employee
+    public async Task<bool> EmployeeExistsAsync(int employeeId)
+    {
+        return await context.Users.AnyAsync(u => u.UserID == employeeId && u.Status == true);
+    }
 }
