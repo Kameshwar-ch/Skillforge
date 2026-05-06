@@ -129,6 +129,15 @@ namespace Skillforge.Service
                 Status   = course.Status
             };
         }
+		public async Task<bool> UpdateCourseStatus(int courseId, bool status)
+		{
+			var course = await _courseRepository.GetCourseByIdAsync(courseId);
+			if (course == null) return false;
+			course.Status = status;
+			await _courseRepository.SaveAsync();
+			return true;
+		}
+
 		public async Task<PagedResultDto<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request)
 		{
 			var pagedCourses = await _courseRepository.GetCoursesFilteredAsync(request);

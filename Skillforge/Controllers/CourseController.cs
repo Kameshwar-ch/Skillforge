@@ -8,6 +8,7 @@ using Skillforge.Utility;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Skillforge.Controller
 {
@@ -128,6 +129,23 @@ namespace Skillforge.Controller
         {
             var result = await _courseService.GetCoursesAsync(request);
             return Ok(result);
+        }
+
+        [HttpPatch("{id}/status")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
+        public async Task<IActionResult> UpdateCourseStatus(int id, [FromBody] UpdateStatusDto request)
+        {
+            try
+            {
+                bool updated = await _courseService.UpdateCourseStatus(id, request.Status);
+                if (!updated)
+                    return NotFound("Course not found.");
+                return Ok(new { message = "Course status updated successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An internal server error occurred.");
+            }
         }
     }
 }
