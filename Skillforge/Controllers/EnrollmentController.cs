@@ -22,7 +22,14 @@ namespace Skillforge.Controllers
         {
             try
             {
-                var id = await enrollmentService.EnrollAsync(dto.CourseId, dto.EmployeeId);
+                
+                var empIdClaim = User.FindFirst("id")?.Value;
+
+                if (empIdClaim == null)
+                return Unauthorized("Invalid token");
+
+                int employeeId = int.Parse(empIdClaim);
+                var id = await enrollmentService.EnrollAsync(dto.CourseId, employeeId);
                 return Created("", new { enrollmentId = id });
             }
             catch(KeyNotFoundException ex)
