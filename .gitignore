@@ -125,3 +125,5 @@ efcore.design.*
 
 appsettings.json
 appsettings.*.json
+
+.claude/
