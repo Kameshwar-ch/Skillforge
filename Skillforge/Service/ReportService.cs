@@ -59,7 +59,17 @@ public class ReportService : IReportService
         return schedules.Select(MapToDto);
     }
 
-    public async Task RunScheduledReportAsync(ReportSchedule schedule)
+    public async Task<bool> DeactivateScheduleAsync(int scheduleId)
+    {
+        var schedule = await _context.ReportSchedules.FindAsync(scheduleId);
+        if (schedule == null) return false;
+        schedule.IsActive = false;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+
+public async Task RunScheduledReportAsync(ReportSchedule schedule)
     {
         var metrics = await BuildMetricsAsync(schedule.Scope);
 

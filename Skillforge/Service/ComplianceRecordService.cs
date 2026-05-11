@@ -67,7 +67,7 @@ public class ComplianceRecordService : IComplianceRecordService
             cr.CertificationID = certificate.CertificationID;
             cr.EmployeeID = certificate.EmployeeID;
             cr.Date = today;
-            if (certificate.ExpiryDate >= DateTime.Now)
+            if (certificate.ExpiryDate >= today)
                 cr.Status = true;
             else
                 cr.Status = false;

@@ -6,6 +6,7 @@ using Skillforge.Utility;
 using Skillforge.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
@@ -87,6 +88,23 @@ namespace Skillforge.Controller
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+        [HttpPatch("{id}/status")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
+        public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] UpdateStatusDto request)
+        {
+            try
+            {
+                bool updated = await _userService.UpdateUserStatus(id, request.Status);
+                if (!updated)
+                    return NotFound("User not found.");
+                return Ok(new { message = "User status updated successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
         [HttpDelete("{userId}")]
         [Authorize(Roles = nameof(UserRole.Admin))]
         public async Task<IActionResult> DeleteUser(int userId)

@@ -121,7 +121,7 @@ public class AttendanceService : IAttendanceService
             UserID    = trainerID,
             Action    = AttendanceMarkedAction,
             Resource  = $"Course/{dto.CourseID}",
-            Timestamp = DateTime.Now
+            Timestamp = DateTime.UtcNow
         });
         await _context.SaveChangesAsync();
 

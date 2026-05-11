@@ -40,6 +40,14 @@ public class UserService : IUserService
         return await _userRepository.UpdateUser(user);
 
     }
+    public async Task<bool> UpdateUserStatus(int id, bool status)
+    {
+        var user = await _userRepository.GetUserByIdAsync(id);
+        if (user == null) return false;
+        user.Status = status;
+        return await _userRepository.UpdateUser(user);
+    }
+
     public async Task<bool> DeleteUser(int userId)
     {
         return await _userRepository.DeleteUser(userId);

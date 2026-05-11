@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Skillforge.Service;
 using Skillforge.Dto;
+using Skillforge.Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -17,7 +18,7 @@ namespace Skillforge.Controllers
             _resultService = resultService;
         }
         [HttpPost]
-        [Authorize(Roles = "Admin,Trainer")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> SubmitAssessmentResult([FromBody] SubmitAssessmentResultDto dto)
         {
             try
