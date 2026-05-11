@@ -25,6 +25,11 @@ public class ReportRepository : IReportRepository
         return schedule;
     }
 
+    public async Task<ReportSchedule?> GetScheduleByIdAsync(int scheduleId)
+    {
+        return await _context.ReportSchedules.FindAsync(scheduleId);
+    }
+
     public async Task<IEnumerable<ReportSchedule>> GetAllSchedulesAsync()
     {
         return await _context.ReportSchedules.ToListAsync();

@@ -73,7 +73,7 @@ public class AttendanceController : ControllerBase
     /// <returns>List of employees with CourseStatus and LoginDate.</returns>
     // GET /api/attendance/course/{courseID}?date=2026-04-20
     [HttpGet("course/{courseID}")]
-    [Authorize(Roles = "Trainer")]
+    [Authorize(Roles = nameof(UserRole.Trainer))]
     public async Task<IActionResult> GetCourseAttendance(int courseID, [FromQuery] DateTime date)
     {
         try

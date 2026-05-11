@@ -69,6 +69,27 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Deactivates a report schedule. The schedule is preserved for audit
+    /// but the background service will no longer run it.
+    /// </summary>
+    [HttpPatch("schedules/{id}/deactivate")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
+    public async Task<IActionResult> DeactivateSchedule(int id)
+    {
+        try
+        {
+            var success = await _reportService.DeactivateScheduleAsync(id);
+            if (!success)
+                return NotFound(new { message = "Schedule not found." });
+            return Ok(new { message = "Schedule deactivated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+/// <summary>
     /// Generates an ad-hoc report for the given scope immediately.
     /// Saves the report to the database, sends a notification, and returns
     /// a styled PDF file as a download.

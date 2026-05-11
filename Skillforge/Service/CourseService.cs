@@ -84,8 +84,11 @@ namespace Skillforge.Service
             await _courseRepository.CreateCourseAsync(newCourse);
             await _courseRepository.SaveAsync();
 
-            await _auditService.LogAsync(newCourse.TrainerID, "CourseCreated", $"New course '{newCourse.Title}' created with status 0.");
-            
+            try
+            {
+                await _auditService.LogAsync(newCourse.TrainerID, "CourseCreated", $"New course '{newCourse.Title}' created with status 0.");
+            }
+            catch { /* audit log failure must not abort a successful course creation */ }
         }
 
         public async Task<CourseResponseDto> GetCourseByIDAsync(int courseID, int userID)
@@ -144,28 +147,9 @@ namespace Skillforge.Service
 			return true;
 		}
 
-		public async Task<PagedResultDto<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request)
+		public async Task<List<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request)
 		{
-			var pagedCourses = await _courseRepository.GetCoursesFilteredAsync(request);
-
-			var courseDtos = pagedCourses.Items.Select(course => new CourseResponseDto
-			{
-				CourseID = course.CourseID,
-				Title = course.Title,
-				Description = course.Description,
-				TrainerID = course.TrainerID,
-				Duration = course.Duration,
-				Status = course.Status
-			}).ToList();
-
-			return new PagedResultDto<CourseResponseDto>
-			{
-				Items = courseDtos,
-				TotalRecords = pagedCourses.TotalRecords,
-				PageNumber = pagedCourses.PageNumber,
-				PageSize = pagedCourses.PageSize,
-				TotalPages = pagedCourses.TotalPages
-			};
+			return await _courseRepository.GetCoursesFilteredAsync(request);
 		}
     }
 }

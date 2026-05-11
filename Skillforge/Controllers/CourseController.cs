@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 namespace Skillforge.Controller
 {
     [Route("api/v1/[controller]")]
+    [ApiController]
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
@@ -27,30 +28,18 @@ namespace Skillforge.Controller
         [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                var errorMessage = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .FirstOrDefault();
-                
-                return BadRequest(errorMessage);
-            }
-
             try
             {
                 await _courseService.CreateCourseAsync(request);
-                
-                // Requirement: Return only a success string
-                return Ok("Course successfully added."); 
+                return StatusCode(201, new { message = "Course successfully added." });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new { message = ex.Message });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An internal server error occurred.");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
         [HttpPost("{cid}/modules")]
@@ -76,19 +65,19 @@ namespace Skillforge.Controller
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new { message = ex.Message });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An internal server error occurred.");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -139,12 +128,12 @@ namespace Skillforge.Controller
             {
                 bool updated = await _courseService.UpdateCourseStatus(id, request.Status);
                 if (!updated)
-                    return NotFound("Course not found.");
+                    return NotFound(new { message = "Course not found." });
                 return Ok(new { message = "Course status updated successfully." });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An internal server error occurred.");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

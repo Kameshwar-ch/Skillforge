@@ -49,11 +49,10 @@ namespace Skillforge.Repository
                 .FirstOrDefaultAsync(c => c.CourseID == courseID);
         }
 
-        public async Task<PagedResultDto<CourseResponseDto>> GetCoursesFilteredAsync(CourseFilterRequestDto request)
+        public async Task<List<CourseResponseDto>> GetCoursesFilteredAsync(CourseFilterRequestDto request)
         {
-            IQueryable<Course> query = _context.Courses.AsNoTracking(); 
+            IQueryable<Course> query = _context.Courses.AsNoTracking();
 
-            // Filters
             if (request.Status.HasValue)
                 query = query.Where(c => c.Status == request.Status.Value);
 
@@ -66,11 +65,7 @@ namespace Skillforge.Repository
             if (request.MaxDuration.HasValue)
                 query = query.Where(c => c.Duration <= request.MaxDuration.Value);
 
-            int totalRecords = await query.CountAsync();
-
-            var courses = await query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
+            return await query
                 .Select(c => new CourseResponseDto
                 {
                     CourseID = c.CourseID,
@@ -81,15 +76,6 @@ namespace Skillforge.Repository
                     Status = c.Status
                 })
                 .ToListAsync();
-
-            return new PagedResultDto<CourseResponseDto>
-            {
-                Items = courses,
-                TotalRecords = totalRecords,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
-                TotalPages = (int)Math.Ceiling(totalRecords / (double)request.PageSize)
-            };
         }
     }
 }

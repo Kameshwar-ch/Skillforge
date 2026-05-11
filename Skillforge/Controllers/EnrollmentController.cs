@@ -19,7 +19,7 @@ public class EnrollmentController : ControllerBase
         enrollmentService = _enrollmentService;
     }
     [HttpPost]
-    [Authorize(Roles = "Employee")]
+    [Authorize(Roles = nameof(UserRole.Employee))]
     public async Task<IActionResult> Enroll(EnrollmentDto dto)
     {
         try
