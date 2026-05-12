@@ -141,7 +141,7 @@ public class AssessmentController : ControllerBase
     }
 
     [HttpGet("get-assessment/{assessmentId}")]
-    [Authorize]
+    [Authorize(Roles = nameof(UserRole.Trainer))]
     public async Task<IActionResult> GetAssessmentById(int assessmentId)
     {
         var result = await _assessmentService.GetAssessmentByIdAsync(assessmentId);
