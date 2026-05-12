@@ -151,5 +151,64 @@ namespace Skillforge.Service
 		{
 			return await _courseRepository.GetCoursesFilteredAsync(request);
 		}
+
+        public async Task<List<ModuleResponseDto>> GetModulesFilteredAsync(ModuleFilterRequestDto request)
+        {
+            return await _courseRepository.GetModulesFilteredAsync(request);
+        }
+
+        public async Task<ModuleResponseDto> GetModuleByIdAsync(int moduleId)
+        {
+            var module = await _courseRepository.GetModuleByIdAsync(moduleId);
+
+            if (module == null)
+                return null;
+
+            return new ModuleResponseDto
+            {
+                ModuleID = module.ModuleID,
+                CourseID = module.CourseID,
+                Title = module.Title,
+                ContentURI = module.ContentURI,
+                Duration = module.Duration,
+                Status = module.Status
+            };
+        }
+
+        public async Task<bool> UpdateModuleAsync(int moduleId, UpdateModuleDto dto)
+        {
+            var module = await _courseRepository.GetModuleByIdAsync(moduleId);
+
+            if (module == null)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                throw new ArgumentException("Invalid Title");
+
+            if (string.IsNullOrWhiteSpace(dto.ContentURI))
+                throw new ArgumentException("Invalid Content URI");
+
+            if (dto.Duration <= 0)
+                throw new ArgumentException("Invalid Duration");
+
+            module.Title = dto.Title;
+            module.ContentURI = dto.ContentURI;
+            module.Duration = dto.Duration;
+            module.Status = dto.Status;
+
+            await _courseRepository.UpdateModuleAsync(module);
+            return true;
+        }
+
+        public async Task<bool> DeleteModuleAsync(int moduleId)
+        {
+            var module = await _courseRepository.GetModuleByIdAsync(moduleId);
+
+            if (module == null)
+                return false;
+
+            await _courseRepository.DeleteModuleAsync(module);
+            return true;
+        }
     }
 }

@@ -136,5 +136,82 @@ namespace Skillforge.Controller
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        [HttpGet("modules")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer) + "," + nameof(UserRole.Employee))]
+        public async Task<IActionResult> GetModules([FromQuery] ModuleFilterRequestDto request)
+        {
+            try
+            {
+                var modules = await _courseService.GetModulesFilteredAsync(request);
+                return Ok(modules);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        
+        [HttpGet("modules/{moduleId}")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer) + "," + nameof(UserRole.Employee))]
+        public async Task<IActionResult> GetModuleById(int moduleId)
+        {
+            try
+            {
+                var module = await _courseService.GetModuleByIdAsync(moduleId);
+
+                if (module == null)
+                    return NotFound(new { message = "Module not found" });
+
+                return Ok(module);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+
+        [HttpPut("modules/{moduleId}")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
+        public async Task<IActionResult> UpdateModule(int moduleId, [FromBody] UpdateModuleDto dto)
+        {
+            try
+            {
+                var updated = await _courseService.UpdateModuleAsync(moduleId, dto);
+
+                if (!updated)
+                    return NotFound(new { message = "Module not found" });
+
+                return Ok(new { message = "Module updated successfully" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        
+        [HttpDelete("modules/{moduleId}")]
+        [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
+        public async Task<IActionResult> DeleteModule(int moduleId)
+        {
+            var deleted = await _courseService.DeleteModuleAsync(moduleId);
+
+            if (!deleted)
+                return NotFound(new { message = "Module not found" });
+
+            return Ok(new { message = "Module deleted successfully" });
+        }
+
     }
 }
