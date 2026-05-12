@@ -1,4 +1,5 @@
 using Skillforge.Domain;
+using Skillforge.Dto;
 
 namespace Skillforge.Repository;
 
@@ -22,4 +23,12 @@ public interface IAssessmentRepository
     /// <param name="assessment">The Assessment entity to be inserted.</param>
     /// <returns>The auto-generated AssessmentID assigned by the database.</returns>
     Task<int> CreateAssessmentAsync(Assessment assessment);
+
+    Task<Assessment?> GetAssessmentByIdAsync(int assessmentId);
+
+    Task UpdateAssessmentAsync(Assessment assessment);
+
+    Task DeleteAssessmentAsync(Assessment assessment);
+
+    Task<List<Assessment>> GetAssessmentsAsync(AssessmentFilterDto filter);
 }

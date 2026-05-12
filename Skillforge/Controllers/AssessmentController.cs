@@ -64,4 +64,91 @@ public class AssessmentController : ControllerBase
             return StatusCode(500, new { message = ex.Message });
         }
     }
+
+    [HttpPut("update-assessment/{assessmentId}")]
+    [Authorize(Roles = nameof(UserRole.Trainer))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateAssessment(int assessmentId, [FromBody] UpdateAssessmentRequestDto request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+       {
+            var trainerIdClaim = User.FindFirstValue("id");
+            if (!int.TryParse(trainerIdClaim, out int trainerId))
+               return Unauthorized();
+
+           var (success, errorMessage) = await _assessmentService.UpdateAssessmentAsync(assessmentId, request);
+
+           if (!success)
+                return NotFound(new { message = errorMessage });
+
+            await _auditService.LogAsync(trainerId, "AssessmentUpdated", $"Assessment/{assessmentId}");
+
+            return Ok(new { message = "Assessment updated successfully." });
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "An unexpected error occurred." });
+        }
+    }
+
+    [HttpDelete("delete-assessment/{assessmentId}")]
+    [Authorize(Roles = nameof(UserRole.Trainer))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteAssessment(int assessmentId)
+    {
+        try
+        {
+            var trainerIdClaim = User.FindFirstValue("id");
+            if (!int.TryParse(trainerIdClaim, out int trainerId))
+                return Unauthorized();
+
+            var (success, errorMessage) = await _assessmentService.DeleteAssessmentAsync(assessmentId);
+
+            if (!success)
+                return NotFound(new { message = errorMessage });
+
+            await _auditService.LogAsync(trainerId, "AssessmentDeleted", $"Assessment/{assessmentId}");
+
+            return Ok(new { message = "Assessment deleted successfully." });
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "An unexpected error occurred." });
+        }
+    }
+
+    [HttpGet("get-assessments")]
+    [Authorize(Roles = nameof(UserRole.Trainer))]
+    public async Task<IActionResult> GetAssessments([FromQuery] AssessmentFilterDto filter)
+    {
+        try
+        {
+            var data = await _assessmentService.GetAssessmentsAsync(filter);
+            return Ok(data);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "An error occurred" });
+        }
+    }
+
+    [HttpGet("get-assessment/{assessmentId}")]
+    [Authorize]
+    public async Task<IActionResult> GetAssessmentById(int assessmentId)
+    {
+        var result = await _assessmentService.GetAssessmentByIdAsync(assessmentId);
+
+        if (result == null)
+            return NotFound(new { message = "Assessment not found" });
+
+        return Ok(result);
+    }
 }
