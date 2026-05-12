@@ -126,7 +126,7 @@ public class AssessmentController : ControllerBase
     }
 
     [HttpGet("get-assessments")]
-    [Authorize(Roles = nameof(UserRole.Trainer))]
+    [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
     public async Task<IActionResult> GetAssessments([FromQuery] AssessmentFilterDto filter)
     {
         try
@@ -141,7 +141,7 @@ public class AssessmentController : ControllerBase
     }
 
     [HttpGet("get-assessment/{assessmentId}")]
-    [Authorize(Roles = nameof(UserRole.Trainer))]
+    [Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Trainer))]
     public async Task<IActionResult> GetAssessmentById(int assessmentId)
     {
         var result = await _assessmentService.GetAssessmentByIdAsync(assessmentId);
