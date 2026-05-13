@@ -10,6 +10,11 @@ namespace Skillforge.Service
 	    Task<CourseResponseDto> GetCourseByIDAsync(int courseID, int userID);
 		Task<List<CourseResponseDto>> GetCoursesAsync(CourseFilterRequestDto request);
 		Task<bool> UpdateCourseStatus(int courseId, bool status);
+		Task<List<ModuleResponseDto>> GetModulesFilteredAsync(ModuleFilterRequestDto request);		
+		Task<ModuleResponseDto> GetModuleByIdAsync(int moduleId);
+		Task<bool> UpdateModuleAsync(int moduleId, UpdateModuleDto dto);
+		Task<bool> DeleteModuleAsync(int moduleId);
+
 	}
 }
 

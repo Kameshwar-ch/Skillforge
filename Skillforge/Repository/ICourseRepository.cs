@@ -18,6 +18,15 @@ namespace Skillforge.Repository
         
         Task<Course?> GetByIDAsync(int courseID);
 
-         Task<List<CourseResponseDto>> GetCoursesFilteredAsync(CourseFilterRequestDto request);
+        Task<List<CourseResponseDto>> GetCoursesFilteredAsync(CourseFilterRequestDto request);
+
+        Task<List<ModuleResponseDto>> GetModulesFilteredAsync(ModuleFilterRequestDto request);
+
+        Task<Module> GetModuleByIdAsync(int moduleId);
+   
+        Task UpdateModuleAsync(Module module);
+
+        Task DeleteModuleAsync(Module module);
+ 
     }
 }

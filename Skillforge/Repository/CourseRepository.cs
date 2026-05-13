@@ -77,5 +77,55 @@ namespace Skillforge.Repository
                 })
                 .ToListAsync();
         }
+
+        public async Task<List<ModuleResponseDto>> GetModulesFilteredAsync(ModuleFilterRequestDto request)
+        {
+            IQueryable<Module> query = _context.Modules.AsNoTracking();
+
+            if (request.CourseId.HasValue)
+                query = query.Where(m => m.CourseID == request.CourseId.Value);
+
+            if (request.Status.HasValue)
+                query = query.Where(m => m.Status == request.Status.Value);
+
+            if (request.MinDuration.HasValue)
+                query = query.Where(m => m.Duration >= request.MinDuration.Value);
+
+            if (request.MaxDuration.HasValue)
+                query = query.Where(m => m.Duration <= request.MaxDuration.Value);
+
+            return await query
+                .Select(m => new ModuleResponseDto
+                {
+                    ModuleID = m.ModuleID,
+                    CourseID = m.CourseID,
+                    Title = m.Title,
+                    ContentURI = m.ContentURI,
+                    Duration = m.Duration,
+                    Status = m.Status
+                })
+                .ToListAsync();
+        }
+
+        public async Task<Module> GetModuleByIdAsync(int moduleId)
+        {
+            
+            return await _context.Modules
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.ModuleID == moduleId);
+
+        }
+
+        public async Task UpdateModuleAsync(Module module)
+        {
+            _context.Modules.Update(module);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteModuleAsync(Module module)
+        {
+            _context.Modules.Remove(module);
+            await _context.SaveChangesAsync();
+        }
     }
 }
