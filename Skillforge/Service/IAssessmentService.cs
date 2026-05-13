@@ -1,3 +1,4 @@
+using Skillforge.Domain;
 using Skillforge.Dto;
 
 namespace Skillforge.Service;
@@ -17,4 +18,8 @@ public interface IAssessmentService
     /// and AssessmentId containing the generated ID on success.
     /// </returns>
     Task<(bool Success, string ErrorMessage, int AssessmentId)> CreateAssessmentAsync(CreateAssessmentRequestDto dto);
+    Task<(bool Success, string ErrorMessage)> UpdateAssessmentAsync(int assessmentId, UpdateAssessmentRequestDto dto);
+    Task<(bool Success, string ErrorMessage)> DeleteAssessmentAsync(int assessmentId);
+    Task<List<AssessmentListDto>> GetAssessmentsAsync(AssessmentFilterDto filter);
+    Task<AssessmentListDto?> GetAssessmentByIdAsync(int assessmentId);
 }

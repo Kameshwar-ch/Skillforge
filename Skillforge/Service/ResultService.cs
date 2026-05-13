@@ -69,4 +69,80 @@ public class ResultService : IResultService
         await _resultRepository.AddAuditLog(AuditLog);
 
     }
+
+    public async Task<List<ResultViewDto>> GetResultsByAssessmentAsync(int assessmentId)
+    {
+        var results = await _context.Results
+        .Where(r => r.AssessmentID == assessmentId)
+        .ToListAsync();
+
+        return results.Select(r => new ResultViewDto
+        {
+        EmployeeID = r.EmployeeID,
+        Score = r.Score,
+        Status = r.Status
+        }).ToList();
+    }
+
+    public async Task UpdateResultAsync(int assessmentId, int employeeId, UpdateResultDto dto, int reviewerId)
+    {
+        var result = await _context.Results
+            .FirstOrDefaultAsync(r => r.AssessmentID == assessmentId && r.EmployeeID == employeeId);
+
+        if (result == null)
+            throw new KeyNotFoundException("Result not found");
+
+        var assessment = await _context.Assessments.FindAsync(assessmentId);
+
+        if (assessment == null)
+            throw new KeyNotFoundException("Assessment not found");
+
+        if (dto.Score > assessment.MaxScore)
+            throw new Exception(ResultMessages.exceeds);
+
+        if (dto.Score < 0)
+            throw new Exception(ResultMessages.negative);
+
+        var passingScore = _configuration.GetValue<int>("AssessmentSettings:PassingScore");
+
+        result.Score = dto.Score;
+        result.Status = dto.Score >= passingScore ? ResultStatus.Pass : ResultStatus.Fail;
+
+        await _context.SaveChangesAsync();
+
+        var audit = new AuditLog
+        {
+            UserID = reviewerId,
+            Action = "Update Assessment Result",
+            Resource = $"Result/{assessmentId}/{employeeId}",
+            Timestamp = DateTime.Now
+        };
+
+        await _resultRepository.AddAuditLog(audit);
+    }
+
+    public async Task DeleteResultAsync(int assessmentId, int employeeId, int reviewerId)
+    {
+        var result = await _context.Results
+        .FirstOrDefaultAsync(r => r.AssessmentID == assessmentId && r.EmployeeID == employeeId);
+
+        if (result == null)
+        throw new KeyNotFoundException("Result not found");
+
+        
+        _context.Results.Remove(result);
+        await _context.SaveChangesAsync();
+
+
+        // Audit log
+        var audit = new AuditLog
+        {
+        UserID = reviewerId,
+        Action = "Delete Assessment Result",
+        Resource = $"Result/{assessmentId}/{employeeId}",
+        Timestamp = DateTime.Now
+        };
+
+        await _resultRepository.AddAuditLog(audit);
+    }
 }

@@ -47,4 +47,62 @@ public class AssessmentService : IAssessmentService
         int assessmentId = await _assessmentRepository.CreateAssessmentAsync(assessment);
         return (true, null!, assessmentId);
     }
+
+    public async Task<(bool Success, string ErrorMessage)> UpdateAssessmentAsync(int assessmentId, UpdateAssessmentRequestDto dto)
+    {
+        var existingAssessment = await _assessmentRepository.GetAssessmentByIdAsync(assessmentId);
+
+        if (existingAssessment == null)
+            return (false, "Assessment not found.");
+
+        existingAssessment.Type = dto.Type;
+        existingAssessment.MaxScore = dto.MaxScore;
+
+        await _assessmentRepository.UpdateAssessmentAsync(existingAssessment);
+
+        return (true, null!);
+    }
+
+    public async Task<(bool Success, string ErrorMessage)> DeleteAssessmentAsync(int assessmentId)
+    {
+        var assessment = await _assessmentRepository.GetAssessmentByIdAsync(assessmentId);
+
+        if (assessment == null)
+            return (false, "Assessment not found.");
+
+        await _assessmentRepository.DeleteAssessmentAsync(assessment);
+
+        return (true, null!);
+    }
+
+    public async Task<List<AssessmentListDto>> GetAssessmentsAsync(AssessmentFilterDto filter)
+    {
+        var assessments = await _assessmentRepository.GetAssessmentsAsync(filter);
+
+        return assessments.Select(a => new AssessmentListDto
+        {
+        AssessmentId = a.AssessmentID,
+        CourseId = a.CourseID,
+        Type = a.Type,
+        MaxScore = a.MaxScore,
+        Date = a.Date
+        }).ToList();
+    }
+
+    public async Task<AssessmentListDto?> GetAssessmentByIdAsync(int assessmentId)
+    {
+        var assessment = await _assessmentRepository.GetAssessmentByIdAsync(assessmentId);
+
+        if (assessment == null) return null;
+
+        return new AssessmentListDto
+        {
+        AssessmentId = assessment.AssessmentID,
+        CourseId = assessment.CourseID,
+        Type = assessment.Type,
+        MaxScore = assessment.MaxScore,
+        Date = assessment.Date
+        };
+    }
+
 }

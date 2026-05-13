@@ -1,5 +1,7 @@
 using Skillforge.Data;
 using Skillforge.Domain;
+using Microsoft.EntityFrameworkCore;
+using Skillforge.Dto;
 
 namespace Skillforge.Repository;
 
@@ -37,5 +39,41 @@ public class AssessmentRepository : IAssessmentRepository
         _context.Assessments.Add(assessment);
         await _context.SaveChangesAsync();
         return assessment.AssessmentID;
+    }
+
+    public async Task<Assessment?> GetAssessmentByIdAsync(int assessmentId)
+    {
+        return await _context.Assessments.FindAsync(assessmentId);
+    }
+
+    public async Task UpdateAssessmentAsync(Assessment assessment)
+    {
+         _context.Assessments.Update(assessment);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAssessmentAsync(Assessment assessment)
+    {
+        _context.Assessments.Remove(assessment);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Assessment>> GetAssessmentsAsync(AssessmentFilterDto filter)
+    {
+    var query = _context.Assessments.AsQueryable();
+
+    if (filter.CourseId.HasValue)
+        query = query.Where(a => a.CourseID == filter.CourseId.Value);
+
+    if (filter.Type.HasValue)
+        query = query.Where(a => a.Type == filter.Type.Value);
+
+    if (filter.FromDate.HasValue)
+        query = query.Where(a => a.Date >= filter.FromDate.Value);
+
+    if (filter.ToDate.HasValue)
+        query = query.Where(a => a.Date <= filter.ToDate.Value);
+
+    return await query.ToListAsync();
     }
 }
